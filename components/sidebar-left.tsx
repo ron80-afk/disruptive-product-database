@@ -14,13 +14,15 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { LayoutDashboard } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import { useUser } from "@/contexts/UserContext";
+import { NavUser } from "@/components/nav-user";
 
 type UserDetails = {
   Firstname: string;
   Lastname: string;
   Role: string;
+  Email: string;
   profilePicture: string;
 };
 
@@ -28,26 +30,28 @@ export function SidebarLeft() {
   const { state } = useSidebar();
   const { userId } = useUser();
 
-  const [user, setUser] = React.useState<UserDetails>({
-    Firstname: "",
-    Lastname: "",
-    Role: "",
-    profilePicture: "",
-  });
+  const [user, setUser] = React.useState<UserDetails | null>(null);
 
   /* ================= USER INFO ================= */
   React.useEffect(() => {
     if (!userId) return;
 
     fetch(`/api/users?id=${encodeURIComponent(userId)}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch user");
+        return res.json();
+      })
       .then((data) => {
         setUser({
-          Firstname: data.Firstname || "",
-          Lastname: data.Lastname || "",
-          Role: data.Role || "",
-          profilePicture: data.profilePicture || "",
+          Firstname: data.Firstname ?? "",
+          Lastname: data.Lastname ?? "",
+          Role: data.Role ?? "",
+          Email: data.Email ?? "",
+          profilePicture: data.profilePicture ?? "",
         });
+      })
+      .catch((err) => {
+        console.error("Sidebar user fetch error:", err);
       });
   }, [userId]);
 
@@ -76,31 +80,19 @@ export function SidebarLeft() {
 
       <SidebarSeparator />
 
-      {/* FOOTER — MIMICS NavUser FEEL */}
-      <SidebarFooter className="px-3 py-3">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9">
-            <AvatarImage
-              src={user.profilePicture || "/avatars/shadcn.jpg"}
-              alt="User"
-            />
-            <AvatarFallback>
-              {user.Firstname?.[0]}
-              {user.Lastname?.[0]}
-            </AvatarFallback>
-          </Avatar>
-
-          {state === "expanded" && (
-            <div className="min-w-0 leading-tight">
-              <div className="truncate text-sm font-medium">
-                {`${user.Firstname} ${user.Lastname}`.trim() || "Unknown User"}
-              </div>
-              <div className="truncate text-xs text-muted-foreground">
-                {user.Role}
-              </div>
-            </div>
-          )}
-        </div>
+      {/* FOOTER — USER MENU */}
+      <SidebarFooter className="p-2">
+        {user && userId && (
+          <NavUser
+            user={{
+              name: `${user.Firstname} ${user.Lastname}`.trim() || "Unknown User",
+              position: user.Role,
+              email: user.Email,
+              avatar: user.profilePicture || "/avatars/shadcn.jpg",
+            }}
+            userId={userId}
+          />
+        )}
       </SidebarFooter>
     </Sidebar>
   );
