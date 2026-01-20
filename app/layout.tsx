@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Oxanium } from "next/font/google";
 import "./globals.css";
 import { UserProvider } from "@/contexts/UserContext";
+import { Toaster } from "sonner";
 
 const oxanium = Oxanium({
   subsets: ["latin"],
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body className={`${oxanium.variable} antialiased`}>
         <UserProvider>
           {children}
+          <Toaster richColors position="top-right" />
         </UserProvider>
       </body>
     </html>
