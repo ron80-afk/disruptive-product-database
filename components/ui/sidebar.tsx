@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import {
   Sheet,
   SheetContent,
@@ -225,6 +226,13 @@ if (isMobile) {
           [&>button]:hidden
         "
       >
+        {/* REQUIRED FOR RADIX ACCESSIBILITY */}
+        <SheetHeader>
+          <VisuallyHidden>
+            <SheetTitle>Sidebar navigation</SheetTitle>
+          </VisuallyHidden>
+        </SheetHeader>
+
         {/* Drag Handle */}
         <div
           className="sticky top-0 z-10 flex justify-center py-3"
@@ -233,6 +241,7 @@ if (isMobile) {
           <div className="h-2 w-24 rounded-full bg-muted-foreground/40" />
         </div>
 
+        {/* SIDEBAR CONTENT */}
         <div className="flex flex-col">
           {children}
         </div>

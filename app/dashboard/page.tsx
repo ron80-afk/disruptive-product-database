@@ -71,7 +71,7 @@ function Dashboard() {
         <main className="flex-1 p-6 space-y-4">
 
           {/* TOGGLE SIDEBAR */}
-          <SidebarTrigger />
+          <SidebarTrigger className="hidden md:flex" />
 
           {/* HEADER */}
           <h1 className="text-2xl font-bold">
@@ -88,14 +88,6 @@ function Dashboard() {
               "Welcome"
             )}
           </h1>
-
-          {/* LOGOUT */}
-          <Button
-            onClick={handleLogout}
-            className="border border-border cursor-pointer"
-          >
-            Logout
-          </Button>
 
         </main>
       </div>

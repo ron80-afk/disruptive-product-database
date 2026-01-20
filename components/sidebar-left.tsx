@@ -27,7 +27,7 @@ type UserDetails = {
 };
 
 export function SidebarLeft() {
-  const { state } = useSidebar();
+const { state, isMobile } = useSidebar();
   const { userId } = useUser();
 
   const [user, setUser] = React.useState<UserDetails | null>(null);
@@ -69,10 +69,10 @@ export function SidebarLeft() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/dashboard">
-                <LayoutDashboard />
-                {state === "expanded" && <span>Dashboard</span>}
-              </Link>
+<Link href="/dashboard">
+  <LayoutDashboard />
+  {(isMobile || state === "expanded") && <span>Dashboard</span>}
+</Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
