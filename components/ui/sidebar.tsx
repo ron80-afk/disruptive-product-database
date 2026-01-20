@@ -165,6 +165,8 @@ function Sidebar({
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
+
+
   if (collapsible === "none") {
     return (
       <div
@@ -180,57 +182,64 @@ function Sidebar({
     )
   }
 
-  if (isMobile) {
-return (
-  <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-    <SheetContent
-      data-sidebar="sidebar"
-      data-slot="sidebar"
-      data-mobile="true"
-      side="top"
-      className="
-        bg-sidebar text-sidebar-foreground
-        w-full
-        max-h-[90svh]
-        overflow-y-auto
-        p-0
-        rounded-b-xl
-        [&>button]:hidden
-      "
-    >
-      {/* Drag / Swipe Indicator */}
-      <div
-        className="sticky top-0 z-10 flex w-full items-center justify-center bg-sidebar py-2"
-        onClick={() => setOpenMobile(false)}
-      >
-        <div className="flex flex-col items-center gap-1">
-          <div className="h-1.5 w-10 rounded-full bg-muted-foreground/40" />
-          <svg
-            className="h-4 w-4 text-muted-foreground animate-bounce"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
-          </svg>
+if (isMobile) {
+  return (
+    <Sheet open={openMobile} onOpenChange={setOpenMobile}>
+      {/* CLOSED STATE — HANDLE ONLY */}
+      {!openMobile && (
+        <div
+          className="
+            fixed bottom-0 left-0 right-0 z-40
+            flex justify-center
+            pb-3
+          "
+        >
+          <button
+            onClick={() => setOpenMobile(true)}
+            className="
+              h-2 w-24 rounded-full
+              bg-muted-foreground/40
+              active:scale-95
+              transition
+            "
+            aria-label="Open sidebar"
+          />
         </div>
-      </div>
+      )}
 
-      <SheetHeader className="sr-only">
-        <SheetTitle>Sidebar</SheetTitle>
-        <SheetDescription>Displays the mobile sidebar.</SheetDescription>
-      </SheetHeader>
+      {/* OPEN STATE */}
+      <SheetContent
+        side="bottom"
+        data-sidebar="sidebar"
+        data-slot="sidebar"
+        data-mobile="true"
+        className="
+          bg-sidebar text-sidebar-foreground
+          w-full
+          max-h-[85svh]
+          p-0
+          rounded-t-2xl
+          animate-in
+          slide-in-from-bottom
+          duration-300
+          [&>button]:hidden
+        "
+      >
+        {/* Drag Handle */}
+        <div
+          className="sticky top-0 z-10 flex justify-center py-3"
+          onClick={() => setOpenMobile(false)}
+        >
+          <div className="h-2 w-24 rounded-full bg-muted-foreground/40" />
+        </div>
 
-      <div className="flex w-full flex-col">
-        {children}
-      </div>
-    </SheetContent>
-  </Sheet>
-)
-
-
-  }
+        <div className="flex flex-col">
+          {children}
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}
 
   return (
     <div
