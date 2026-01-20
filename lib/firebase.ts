@@ -1,7 +1,7 @@
 // lib/firebase.ts
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore"; // Import Firestore
+import { initializeApp } from "firebase/app"
+import { getAnalytics, isSupported } from "firebase/analytics"
+import { getFirestore } from "firebase/firestore"
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -11,15 +11,24 @@ const firebaseConfig = {
   storageBucket: "product-database-b4975.firebasestorage.app",
   messagingSenderId: "681965972013",
   appId: "1:681965972013:web:c57706c26ea4bc3fbd66a4",
-  measurementId: "G-3NG38E0CF6"
-};
+  measurementId: "G-3NG38E0CF6",
+}
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig)
 
-// Initialize Firestore and Analytics
-const db = getFirestore(app);
-const analytics = getAnalytics(app);
+// Firestore is SSR-safe
+const db = getFirestore(app)
 
-// Export Firestore instance
-export { db, analytics };
+// ✅ Analytics: browser-only, guarded
+let analytics: any = null
+
+if (typeof window !== "undefined") {
+  isSupported().then((supported) => {
+    if (supported) {
+      analytics = getAnalytics(app)
+    }
+  })
+}
+
+export { db, analytics }
