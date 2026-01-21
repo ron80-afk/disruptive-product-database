@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import { SidebarLeft } from "@/components/sidebar-left";
+import { Button } from "@/components/ui/button";
 
 /* ---------------- Types ---------------- */
 type UserData = {
@@ -59,12 +60,26 @@ function Products() {
         <SidebarLeft />
 
         {/* MAIN CONTENT */}
-        <main className="flex-1 p-6 space-y-4">
+        <main className="flex-1 p-6 space-y-6">
           {/* TOGGLE SIDEBAR */}
           <SidebarTrigger className="hidden md:flex" />
 
+          {/* HEADER */}
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-semibold">Products</h1>
+
+            <Button
+              type="button"
+              className="gap-1 cursor-pointer"
+            >
+              + Add Product
+            </Button>
+          </div>
+
           {/* EMPTY CONTENT ON PURPOSE */}
-          <div>Products</div>
+          <div className="text-muted-foreground">
+            No products yet.
+          </div>
         </main>
       </div>
     </SidebarProvider>

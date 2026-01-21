@@ -111,10 +111,11 @@ export function NavUser({
   <SidebarMenuItem>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <SidebarMenuButton
-          size="lg"
-          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-        >
+              <SidebarMenuButton
+                size="lg"
+                className="cursor-pointer data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              >
+
           <Avatar className="h-8 w-8 rounded-lg">
             <AvatarImage src={user.avatar} alt={user.name} />
             <AvatarFallback className="rounded-lg">
@@ -172,7 +173,7 @@ export function NavUser({
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
             <Link href={`/profile?id=${encodeURIComponent(userId)}`}>
-              <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 cursor-pointer">
                 <BadgeCheck className="size-4" />
                 <span>Account</span>
               </div>

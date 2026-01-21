@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import {
   Sidebar,
   SidebarContent,
@@ -14,11 +15,11 @@ import {
   SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar";
+
 import { LayoutDashboard, Package } from "lucide-react";
 
 import { useUser } from "@/contexts/UserContext";
 import { NavUser } from "@/components/nav-user";
-
 
 type UserDetails = {
   Firstname: string;
@@ -31,11 +32,10 @@ type UserDetails = {
 export function SidebarLeft() {
   const { state, isMobile } = useSidebar();
   const { userId } = useUser();
-  const pathname = usePathname(); // ✅ ACTIVE ROUTE
+  const pathname = usePathname();
 
   const [user, setUser] = React.useState<UserDetails | null>(null);
 
-  /* ================= USER INFO ================= */
   React.useEffect(() => {
     if (!userId) return;
 
@@ -70,14 +70,19 @@ export function SidebarLeft() {
       {/* CONTENT */}
       <SidebarContent>
         <SidebarMenu>
+
+          {/* DASHBOARD */}
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className={
-                pathname === "/dashboard"
-                  ? "bg-primary text-primary-foreground"
-                  : ""
-              }
+              data-active={pathname === "/dashboard"}
+              className="
+                transition-colors
+                hover:bg-muted
+                data-[active=true]:bg-primary
+                data-[active=true]:text-primary-foreground
+                data-[active=true]:hover:bg-primary/90
+              "
             >
               <Link href="/dashboard">
                 <LayoutDashboard />
@@ -88,41 +93,49 @@ export function SidebarLeft() {
             </SidebarMenuButton>
           </SidebarMenuItem>
 
-<SidebarMenuItem>
-  <SidebarMenuButton
-    asChild
-    className={
-      pathname === "/products"
-        ? "bg-primary text-primary-foreground"
-        : ""
-    }
-  >
-    <Link href="/products">
-      <Package />
-      {(isMobile || state === "expanded") && (
-        <span>Products</span>
-      )}
-    </Link>
-  </SidebarMenuButton>
-</SidebarMenuItem>
+          {/* PRODUCTS */}
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              data-active={pathname === "/products"}
+              className="
+                transition-colors
+                hover:bg-muted
+                data-[active=true]:bg-primary
+                data-[active=true]:text-primary-foreground
+                data-[active=true]:hover:bg-primary/90
+              "
+            >
+              <Link href="/products">
+                <Package />
+                {(isMobile || state === "expanded") && (
+                  <span>Products</span>
+                )}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
         </SidebarMenu>
       </SidebarContent>
 
       <SidebarSeparator />
 
-      {/* FOOTER — USER MENU */}
+      {/* FOOTER */}
       <SidebarFooter className="p-2">
         {user && userId && (
-          <NavUser
-            user={{
-              name: `${user.Firstname} ${user.Lastname}`.trim() || "Unknown User",
-              position: user.Role,
-              email: user.Email,
-              avatar: user.profilePicture || "/avatars/shadcn.jpg",
-            }}
-            userId={userId}
-          />
+          <div className="cursor-pointer">
+            <NavUser
+              user={{
+                name: `${user.Firstname} ${user.Lastname}`.trim() || "Unknown User",
+                position: user.Role,
+                email: user.Email,
+                avatar: user.profilePicture || "/avatars/shadcn.jpg",
+              }}
+              userId={userId}
+            />
+          </div>
         )}
+
       </SidebarFooter>
     </Sidebar>
   );
