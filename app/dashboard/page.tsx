@@ -89,12 +89,13 @@ function Dashboard() {
             )}
             
           </h1>
-  {/* <Button
-    variant="destructive"
-    onClick={handleLogout}
-  >
-    Logout
-  </Button> */}
+          {/**Do not remove the buttn below */}
+            <Button
+              variant="destructive"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
         </main>
       </div>
     </SidebarProvider>

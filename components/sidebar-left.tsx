@@ -16,7 +16,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-import { LayoutDashboard, Package } from "lucide-react";
+import { LayoutDashboard, Package, Truck } from "lucide-react";
 
 import { useUser } from "@/contexts/UserContext";
 import { NavUser } from "@/components/nav-user";
@@ -114,6 +114,28 @@ export function SidebarLeft() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+
+            {/* SUPPLIERS */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                data-active={pathname === "/suppliers"}
+                className="
+                  transition-colors
+                  hover:bg-muted
+                  data-[active=true]:bg-primary
+                  data-[active=true]:text-primary-foreground
+                  data-[active=true]:hover:bg-primary/90
+                "
+              >
+                <Link href="/suppliers">
+                  <Truck />
+                  {(isMobile || state === "expanded") && (
+                    <span>Suppliers</span>
+                  )}
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
 
         </SidebarMenu>
       </SidebarContent>
