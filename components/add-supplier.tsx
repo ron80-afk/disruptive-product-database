@@ -15,6 +15,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
@@ -204,13 +206,18 @@ useEffect(() => {
                   }
                 />
 
-                <Input
-                  placeholder="Contact Number"
-                  value={contactNumbers[index]}
-                  onChange={(e) =>
-                    updateList(setContactNumbers, index, e.target.value)
-                  }
+                <PhoneInput
+                international
+                defaultCountry="PH"
+                countryCallingCodeEditable={false}
+                value={contactNumbers[index]}
+                onChange={(value) =>
+                    updateList(setContactNumbers, index, value || "")
+                }
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                placeholder="+63 9XX XXX XXXX"
                 />
+
 
                 <div className="flex gap-1">
                   <Button
