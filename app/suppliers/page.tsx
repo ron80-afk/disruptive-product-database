@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
-
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-
 import { SidebarLeft } from "@/components/sidebar-left";
 import { Button } from "@/components/ui/button";
 import AddSupplier from "@/components/add-supplier";
+import EditSupplier from "@/components/edit-supplier";
+import DeleteSupplier from "@/components/delete-supplier";
 
 import {
   Table,
@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import { Pencil, Trash2, MoreHorizontal, Delete } from "lucide-react";
 
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -40,15 +40,28 @@ type UserData = {
 
 type Supplier = {
   id: string;
+
   company: string;
   internalCode?: string;
   address: string;
   email?: string;
   website?: string;
-  contacts?: { name: string; phone: string }[];
+
+  contacts?: {
+    name: string;
+    phone: string;
+  }[];
+
   forteProducts?: string[];
   products?: string[];
   certificates?: string[];
+
+  createdBy?: string | null;
+  referenceID?: string | null;
+
+  isActive?: boolean;
+  createdAt?: any;
+  updatedAt?: any;
 };
 
 /* ---------------- Component ---------------- */
@@ -60,6 +73,11 @@ function Suppliers() {
   const [loading, setLoading] = useState(true);
 
   const [addSupplierOpen, setAddSupplierOpen] = useState(false);
+
+  const [editSupplierOpen, setEditSupplierOpen] = useState(false);
+  const [deleteSupplierOpen, setDeleteSupplierOpen] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
   /* ---------------- Auth / User ---------------- */
@@ -164,7 +182,10 @@ function Suppliers() {
                             variant="outline"
                             size="sm"
                             className="gap-1 cursor-pointer"
-                            // EDIT LOGIC LATER
+                            onClick={() => {
+                              setSelectedSupplier(s);
+                              setEditSupplierOpen(true);
+                            }}
                           >
                             <Pencil className="h-4 w-4" />
                             Edit
@@ -174,7 +195,10 @@ function Suppliers() {
                             variant="destructive"
                             size="sm"
                             className="gap-1 cursor-pointer"
-                            // DELETE LOGIC LATER
+                            onClick={() => {
+                              setSelectedSupplier(s);
+                              setDeleteSupplierOpen(true);
+                            }}
                           >
                             <Trash2 className="h-4 w-4" />
                             Delete
@@ -224,6 +248,20 @@ function Suppliers() {
 
       {/* ADD SUPPLIER SHEET */}
       <AddSupplier open={addSupplierOpen} onOpenChange={setAddSupplierOpen} />
+      {selectedSupplier && (
+        <EditSupplier
+          open={editSupplierOpen}
+          onOpenChange={setEditSupplierOpen}
+          supplier={selectedSupplier}
+        />
+      )}
+      {selectedSupplier && (
+        <DeleteSupplier
+          open={deleteSupplierOpen}
+          onOpenChange={setDeleteSupplierOpen}
+          supplier={selectedSupplier}
+        />
+      )}
     </SidebarProvider>
   );
 }

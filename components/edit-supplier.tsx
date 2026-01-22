@@ -24,8 +24,9 @@ import { toast } from "sonner";
 
 import { useUser } from "@/contexts/UserContext";
 
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+
 import { db } from "@/lib/firebase";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 
 /* ---------------- Types ---------------- */
 type UserDetails = {
@@ -36,13 +37,14 @@ type UserDetails = {
   ReferenceID: string;
 };
 
-type AddSupplierProps = {
+type EditSupplierProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  supplier: any;
 };
 
 /* ---------------- Component ---------------- */
-function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
+function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
   const { userId } = useUser();
   const [user, setUser] = useState<UserDetails | null>(null);
 
@@ -61,7 +63,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
   const [products, setProducts] = useState<string[]>([""]);
   const [certificates, setCertificates] = useState<string[]>([""]);
 
-  /* ---------------- Silent user detection ---------------- */
+
   useEffect(() => {
     if (!userId) return;
 
@@ -80,9 +82,52 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
         });
       })
       .catch((err) => {
-        console.error("AddSupplier user fetch error:", err);
+        console.error("EditSupplier user fetch error:", err);
       });
   }, [userId]);
+
+  /* ---------------- Silent user detection ---------------- */
+  useEffect(() => {
+    if (!supplier) return;
+
+    setCompany(supplier.company || "");
+    setInternalCode(supplier.internalCode || "");
+    setAddress(supplier.address || "");
+    setEmail(supplier.email || "");
+    setWebsite(supplier.website || "");
+
+    // ✅ CONTACTS – always at least 1 row
+    if (supplier.contacts && supplier.contacts.length > 0) {
+      setContactNames(supplier.contacts.map((c: any) => c.name || ""));
+      setContactNumbers(supplier.contacts.map((c: any) => c.phone || ""));
+    } else {
+      setContactNames([""]);
+      setContactNumbers([""]);
+    }
+
+    // ✅ FORTE PRODUCTS
+    setForteProducts(
+      supplier.forteProducts && supplier.forteProducts.length > 0
+        ? supplier.forteProducts
+        : [""]
+    );
+
+    // ✅ PRODUCTS
+    setProducts(
+      supplier.products && supplier.products.length > 0
+        ? supplier.products
+        : [""]
+    );
+
+    // ✅ CERTIFICATES
+    setCertificates(
+      supplier.certificates && supplier.certificates.length > 0
+        ? supplier.certificates
+        : [""]
+    );
+  }, [supplier]);
+
+
 
   /* ---------------- Helpers ---------------- */
   const updateList = (
@@ -143,14 +188,34 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
         certificates: certificates.filter(Boolean),
 
         createdBy: userId || null,
-        referenceID: user.ReferenceID,
+        referenceID: user?.ReferenceID || null,
 
         isActive: true, // ✅ DEFAULT ACTIVE
 
         createdAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, "suppliers"), supplierData);
+      await updateDoc(doc(db, "suppliers", supplier.id), {
+        company,
+        internalCode,
+        address,
+        email,
+        website,
+
+        contacts: contactNames
+          .map((name, index) => ({
+            name,
+            phone: contactNumbers[index] || "",
+          }))
+          .filter(c => c.name || c.phone),
+
+        forteProducts: forteProducts.filter(Boolean),
+        products: products.filter(Boolean),
+        certificates: certificates.filter(Boolean),
+
+        referenceID: user?.ReferenceID || null, // 👈 editor
+        updatedAt: serverTimestamp(),
+      });
 
       toast.success("Supplier saved successfully", {
         description: company,
@@ -179,7 +244,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-xl overflow-y-auto px-6">
         <SheetHeader>
-          <SheetTitle>Add Supplier</SheetTitle>
+          <SheetTitle>Edit Supplier</SheetTitle>
           <SheetDescription>Enter supplier information</SheetDescription>
         </SheetHeader>
 
@@ -444,7 +509,6 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
           <Button
             type="button"
             onClick={handleSaveSupplier}
-            disabled={!user?.ReferenceID}
           >
             Save Supplier
           </Button>
@@ -454,4 +518,4 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
   );
 }
 
-export default AddSupplier;
+export default EditSupplier;
