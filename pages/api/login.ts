@@ -76,12 +76,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ message: "Invalid credentials." });
   }
 
-  // ❗ ❗ FINAL FILTER — ONLY SALES CAN LOGIN
-  if (user.Department !== "CSR") {
-    return res.status(403).json({
-      message: "Only Sales department users are allowed to log in.",
-    });
-  }
+  // // ❗ ❗ FINAL FILTER — ONLY SALES CAN LOGIN
+  // if (user.Department !== "CSR") {
+  //   return res.status(403).json({
+  //     message: "Only Sales department users are allowed to log in.",
+  //   });
+  // }
 
   // Reset attempts after success
   await usersCollection.updateOne(
