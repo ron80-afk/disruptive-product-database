@@ -203,19 +203,32 @@ function Sidebar({
 if (isMobile) {
   return (
     <>
-      {/* CLOSED STATE — GRAY PILL */}
+      {/* CLOSED STATE — GRAY PILL (BOTTOM, ALWAYS VISIBLE) */}
       {!openMobile && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-center pb-3">
+        <div
+          className="
+      fixed
+      bottom-0
+      left-0
+      right-0
+      z-[9999]
+      flex
+      justify-center
+      pb-3
+    "
+        >
           <button
             onClick={() => setOpenMobile(true)}
             className="
-              h-2 w-24 rounded-full
-              bg-muted-foreground/40
-              active:scale-95
-              transition
-              cursor-pointer
-              hover:bg-muted-foreground/60
-            "
+        h-2
+        w-24
+        rounded-full
+        bg-muted-foreground/40
+        active:scale-95
+        transition
+        cursor-pointer
+        hover:bg-muted-foreground/60
+      "
             aria-label="Open sidebar"
           />
         </div>
