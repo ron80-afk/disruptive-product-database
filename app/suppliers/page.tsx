@@ -158,13 +158,12 @@ function Suppliers() {
                   suppliers.map((s) => (
                     <TableRow key={s.id}>
                       {/* ACTIONS */}
-                      {/* ACTIONS */}
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            className="gap-1"
+                            className="gap-1 cursor-pointer"
                             // EDIT LOGIC LATER
                           >
                             <Pencil className="h-4 w-4" />
@@ -174,7 +173,7 @@ function Suppliers() {
                           <Button
                             variant="destructive"
                             size="sm"
-                            className="gap-1"
+                            className="gap-1 cursor-pointer"
                             // DELETE LOGIC LATER
                           >
                             <Trash2 className="h-4 w-4" />
