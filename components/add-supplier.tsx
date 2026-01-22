@@ -141,7 +141,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
 
         createdBy: userId || null,
         referenceID: user?.ReferenceID || null,
-         isActive: true,
+        isActive: true,
         createdAt: serverTimestamp(),
       };
 

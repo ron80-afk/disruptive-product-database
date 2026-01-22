@@ -22,6 +22,7 @@ import {
 import { Pencil, Trash2, MoreHorizontal, Delete } from "lucide-react";
 
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+
 import { db } from "@/lib/firebase";
 
 import {
@@ -106,19 +107,25 @@ function Suppliers() {
 
   /* ---------------- Fetch Suppliers (REALTIME) ---------------- */
   useEffect(() => {
-    const q = query(collection(db, "suppliers"), orderBy("createdAt", "desc"));
+  const q = query(
+    collection(db, "suppliers"),
+    orderBy("createdAt", "desc")
+  );
 
-    const unsub = onSnapshot(q, (snapshot) => {
-      const list = snapshot.docs.map((doc) => ({
+  const unsub = onSnapshot(q, (snapshot) => {
+    const list = snapshot.docs
+      .map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      }))
+      // ✅ CLIENT-SIDE FILTER (Option 3)
+      .filter((s: any) => s.isActive !== false);
 
-      setSuppliers(list as Supplier[]);
-    });
+    setSuppliers(list as Supplier[]);
+  });
 
-    return () => unsub();
-  }, []);
+  return () => unsub();
+}, []);
 
   return (
     <SidebarProvider>
