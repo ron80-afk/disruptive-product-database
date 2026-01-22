@@ -4,10 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 
-import {
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 import { SidebarLeft } from "@/components/sidebar-left";
 import { Button } from "@/components/ui/button";
@@ -22,15 +19,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, MoreHorizontal } from "lucide-react";
+
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 import {
-  collection,
-  onSnapshot,
-  query,
-  orderBy,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 /* ---------------- Types ---------------- */
 type UserData = {
@@ -89,10 +88,7 @@ function Suppliers() {
 
   /* ---------------- Fetch Suppliers (REALTIME) ---------------- */
   useEffect(() => {
-    const q = query(
-      collection(db, "suppliers"),
-      orderBy("createdAt", "desc")
-    );
+    const q = query(collection(db, "suppliers"), orderBy("createdAt", "desc"));
 
     const unsub = onSnapshot(q, (snapshot) => {
       const list = snapshot.docs.map((doc) => ({
@@ -162,21 +158,32 @@ function Suppliers() {
                   suppliers.map((s) => (
                     <TableRow key={s.id}>
                       {/* ACTIONS */}
+                      {/* ACTIONS */}
                       <TableCell>
-                        <div className="flex gap-2">
-                          <Button size="icon" variant="outline">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1"
+                            // EDIT LOGIC LATER
+                          >
                             <Pencil className="h-4 w-4" />
+                            Edit
                           </Button>
 
-                          <Button size="icon" variant="destructive">
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="gap-1"
+                            // DELETE LOGIC LATER
+                          >
                             <Trash2 className="h-4 w-4" />
+                            Delete
                           </Button>
                         </div>
                       </TableCell>
 
-                      <TableCell className="font-medium">
-                        {s.company}
-                      </TableCell>
+                      <TableCell className="font-medium">{s.company}</TableCell>
 
                       <TableCell>{s.internalCode || "-"}</TableCell>
 
@@ -204,13 +211,9 @@ function Suppliers() {
                         {s.forteProducts?.join(", ") || "-"}
                       </TableCell>
 
-                      <TableCell>
-                        {s.products?.join(", ") || "-"}
-                      </TableCell>
+                      <TableCell>{s.products?.join(", ") || "-"}</TableCell>
 
-                      <TableCell>
-                        {s.certificates?.join(", ") || "-"}
-                      </TableCell>
+                      <TableCell>{s.certificates?.join(", ") || "-"}</TableCell>
                     </TableRow>
                   ))
                 )}
@@ -221,10 +224,7 @@ function Suppliers() {
       </div>
 
       {/* ADD SUPPLIER SHEET */}
-      <AddSupplier
-        open={addSupplierOpen}
-        onOpenChange={setAddSupplierOpen}
-      />
+      <AddSupplier open={addSupplierOpen} onOpenChange={setAddSupplierOpen} />
     </SidebarProvider>
   );
 }
