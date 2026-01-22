@@ -33,7 +33,7 @@ type UserDetails = {
   Lastname: string;
   Role: string;
   Email: string;
-  ReferenceID: string; 
+  ReferenceID: string;
 };
 
 type AddSupplierProps = {
@@ -123,8 +123,6 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
         return;
       }
 
-      
-
       const supplierData = {
         company,
         internalCode,
@@ -144,7 +142,6 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
         createdBy: userId || null,
         referenceID: user?.ReferenceID || null,
         createdAt: serverTimestamp(),
-
       };
 
       await addDoc(collection(db, "suppliers"), supplierData);
