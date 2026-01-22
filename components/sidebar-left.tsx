@@ -59,36 +59,35 @@ export function SidebarLeft() {
   }, [userId]);
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar
+      collapsible="icon"
+      className="bg-white/90 backdrop-blur-md shadow-2xl border-r border-border/50"
+    >
       {/* HEADER */}
       <SidebarHeader className="h-16 px-4 flex items-center">
         {state === "expanded" && (
-          <span className="text-lg font-semibold">Inventory</span>
+          <span className="text-lg font-bold tracking-tight">
+            Inventory
+          </span>
         )}
       </SidebarHeader>
 
       {/* CONTENT */}
-      <SidebarContent>
+      <SidebarContent className="px-2">
         <SidebarMenu>
 
           {/* DASHBOARD */}
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              data-active={pathname === "/dashboard"}
-              className="
-                transition-colors
-                hover:bg-muted
-                data-[active=true]:bg-primary
-                data-[active=true]:text-primary-foreground
-                data-[active=true]:hover:bg-primary/90
-              "
+              tooltip="Dashboard"
+              isActive={pathname === "/dashboard"}
             >
               <Link href="/dashboard">
                 <LayoutDashboard />
-                {(isMobile || state === "expanded") && (
-                  <span>Dashboard</span>
-                )}
+                <span className={state === "collapsed" ? "sr-only" : ""}>
+                  Dashboard
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -97,45 +96,33 @@ export function SidebarLeft() {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              data-active={pathname === "/products"}
-              className="
-                transition-colors
-                hover:bg-muted
-                data-[active=true]:bg-primary
-                data-[active=true]:text-primary-foreground
-                data-[active=true]:hover:bg-primary/90
-              "
+              tooltip="Products"
+              isActive={pathname === "/products"}
             >
               <Link href="/products">
                 <Package />
-                {(isMobile || state === "expanded") && (
-                  <span>Products</span>
-                )}
+                <span className={state === "collapsed" ? "sr-only" : ""}>
+                  Products
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
 
-            {/* SUPPLIERS */}
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                data-active={pathname === "/suppliers"}
-                className="
-                  transition-colors
-                  hover:bg-muted
-                  data-[active=true]:bg-primary
-                  data-[active=true]:text-primary-foreground
-                  data-[active=true]:hover:bg-primary/90
-                "
-              >
-                <Link href="/suppliers">
-                  <Truck />
-                  {(isMobile || state === "expanded") && (
-                    <span>Suppliers</span>
-                  )}
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+          {/* SUPPLIERS */}
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              tooltip="Suppliers"
+              isActive={pathname === "/suppliers"}
+            >
+              <Link href="/suppliers">
+                <Truck />
+                <span className={state === "collapsed" ? "sr-only" : ""}>
+                  Suppliers
+                </span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
 
         </SidebarMenu>
       </SidebarContent>
@@ -145,7 +132,7 @@ export function SidebarLeft() {
       {/* FOOTER */}
       <SidebarFooter className="p-2">
         {user && userId && (
-          <div className="cursor-pointer">
+          <div className="rounded-xl bg-white/80 backdrop-blur-md shadow-lg">
             <NavUser
               user={{
                 name: `${user.Firstname} ${user.Lastname}`.trim() || "Unknown User",
@@ -157,7 +144,6 @@ export function SidebarLeft() {
             />
           </div>
         )}
-
       </SidebarFooter>
     </Sidebar>
   );
