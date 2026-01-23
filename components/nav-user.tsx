@@ -4,16 +4,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import {
-  BadgeCheck,
-  LogOut,
-} from "lucide-react";
+import { BadgeCheck, LogOut } from "lucide-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -140,7 +133,7 @@ export function NavUser({
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
-              className="min-w-[224px] rounded-lg"
+              className="min-w-[224px] rounded-lg z-[9999]"
               side={isMobile ? "bottom" : "right"}
               align="start"
               sideOffset={4}
@@ -172,7 +165,7 @@ export function NavUser({
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
                   <Link href={`/profile?id=${encodeURIComponent(userId)}`}>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 cursor-pointer">
                       <BadgeCheck className="size-4" />
                       <span>Account</span>
                     </div>
@@ -213,11 +206,7 @@ export function NavUser({
               Cancel
             </Button>
 
-            <Button
-              onClick={doLogout}
-              disabled={isLoggingOut}
-              className="ml-2"
-            >
+            <Button onClick={doLogout} disabled={isLoggingOut} className="ml-2">
               {isLoggingOut ? "Logging out..." : "Logout"}
             </Button>
           </DialogFooter>

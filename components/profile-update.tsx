@@ -284,7 +284,7 @@ export default function ProfileClient() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-auto"
+                  className="w-auto cursor-pointer"
                   onClick={() =>
                     document.getElementById("profilePicture")?.click()
                   }
@@ -395,6 +395,7 @@ export default function ProfileClient() {
                             type="button"
                             variant="outline"
                             onClick={() => setShowPassword(!showPassword)}
+                            className="cursor-pointer"
                           >
                             {showPassword ? "Hide" : "Show"}
                           </Button>
@@ -402,6 +403,7 @@ export default function ProfileClient() {
                             type="button"
                             variant="outline"
                             onClick={handleGeneratePassword}
+                            className="cursor-pointer"
                           >
                             Generate
                           </Button>
@@ -451,6 +453,7 @@ export default function ProfileClient() {
                             type="button"
                             variant="outline"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="cursor-pointer"
                           >
                             {showConfirmPassword ? "Hide" : "Show"}
                           </Button>
@@ -463,7 +466,7 @@ export default function ProfileClient() {
                   <Button
                     type="submit"
                     disabled={saving || uploading}
-                    className="w-full md:w-auto"
+                    className="w-full md:w-auto cursor-pointer"
                   >
                     {saving
                       ? "Saving..."
