@@ -403,8 +403,6 @@
 
 .ecoshift {
   --radius: 0.625rem;
-  position: relative;
-  overflow: hidden;
   background-color: var(--sidebar);
   color: var(--sidebar-foreground);
 }

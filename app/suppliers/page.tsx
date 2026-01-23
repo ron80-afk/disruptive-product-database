@@ -3,10 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { SidebarLeft } from "@/components/sidebar-left";
-import { SidebarBottom } from "@/components/sidebar-bottom";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+
 import AddSupplier from "@/components/add-supplier";
 import EditSupplier from "@/components/edit-supplier";
 import DeleteSupplier from "@/components/delete-supplier";
@@ -55,7 +54,6 @@ type Supplier = {
   updatedAt?: any;
 };
 
-/* ---------------- Component ---------------- */
 export default function Suppliers() {
   const router = useRouter();
   const { userId } = useUser();
@@ -68,9 +66,8 @@ export default function Suppliers() {
   const [deleteSupplierOpen, setDeleteSupplierOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
 
-  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
-    null
-  );
+  const [selectedSupplier, setSelectedSupplier] =
+    useState<Supplier | null>(null);
 
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
@@ -180,159 +177,159 @@ export default function Suppliers() {
   );
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <SidebarLeft />
-        <SidebarBottom />
+    <div className="p-6 space-y-6">
+      {/* DESKTOP SIDEBAR TOGGLE */}
+      <SidebarTrigger className="hidden md:flex" />
 
-        <main className="flex-1 p-6 space-y-6">
-          <SidebarTrigger className="hidden md:flex" />
+      {/* HEADER */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-2xl font-semibold">Suppliers</h1>
 
-          {/* HEADER */}
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <h1 className="text-2xl font-semibold">Suppliers</h1>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Search supplier..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-9 w-64 rounded-md border px-3 text-sm"
+          />
+
+          <Button
+            variant="outline"
+            onClick={() => setFilterOpen(true)}
+            className="gap-1 cursor-pointer"
+          >
+            <Filter className="h-4 w-4" />
+            Filter
+          </Button>
+
+          <Button
+            onClick={() => setAddSupplierOpen(true)}
+            className="cursor-pointer"
+          >
+            + Add Supplier
+          </Button>
+        </div>
+      </div>
+
+      {/* TABLE */}
+      <div className="rounded-md border overflow-x-auto">
+        <div className="min-w-[1400px]">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Actions</TableHead>
+                <TableHead>Company Name</TableHead>
+                <TableHead>Internal Code</TableHead>
+                <TableHead>Full Address</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Website</TableHead>
+                <TableHead>Contact Name(s)</TableHead>
+                <TableHead>Phone Number(s)</TableHead>
+                <TableHead>Forte Product(s)</TableHead>
+                <TableHead>Product(s)</TableHead>
+                <TableHead>Certificate(s)</TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {filteredSuppliers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={11} className="text-center py-8">
+                    No suppliers found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginatedSuppliers.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedSupplier(s);
+                            setEditSupplierOpen(true);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedSupplier(s);
+                            setDeleteSupplierOpen(true);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>{s.company}</TableCell>
+                    <TableCell>{s.internalCode || "-"}</TableCell>
+                    <TableCell className="max-w-xs truncate">
+                      {s.address}
+                    </TableCell>
+                    <TableCell>{s.email || "-"}</TableCell>
+                    <TableCell>{s.website || "-"}</TableCell>
+                    <TableCell>
+                      {s.contacts?.map((c) => c.name).join(", ") || "-"}
+                    </TableCell>
+                    <TableCell>
+                      {s.contacts?.map((c) => c.phone).join(", ") || "-"}
+                    </TableCell>
+                    <TableCell>
+                      {s.forteProducts?.join(", ") || "-"}
+                    </TableCell>
+                    <TableCell>{s.products?.join(", ") || "-"}</TableCell>
+                    <TableCell>
+                      {s.certificates?.join(", ") || "-"}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+
+          {/* PAGINATION */}
+          <div className="flex items-center justify-between p-4">
+            <span className="text-sm">
+              Page {currentPage} of {totalPages || 1}
+            </span>
 
             <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Search supplier..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="h-9 w-64 rounded-md border px-3 text-sm"
-              />
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+              >
+                Previous
+              </Button>
 
               <Button
+                size="sm"
                 variant="outline"
-                onClick={() => setFilterOpen(true)}
-                className="gap-1 cursor-pointer"
+                disabled={
+                  currentPage === totalPages || totalPages === 0
+                }
+                onClick={() => setCurrentPage((p) => p + 1)}
               >
-                <Filter className="h-4 w-4" />
-                Filter
-              </Button>
-
-              <Button onClick={() => setAddSupplierOpen(true)} className="cursor-pointer">
-                + Add Supplier
+                Next
               </Button>
             </div>
           </div>
-
-          {/* TABLE */}
-          <div className="rounded-md border overflow-x-auto">
-            <div className="min-w-[1400px]">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Actions</TableHead>
-                    <TableHead>Company Name</TableHead>
-                    <TableHead>Internal Code</TableHead>
-                    <TableHead>Full Address</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Website</TableHead>
-                    <TableHead>Contact Name(s)</TableHead>
-                    <TableHead>Phone Number(s)</TableHead>
-                    <TableHead>Forte Product(s)</TableHead>
-                    <TableHead>Product(s)</TableHead>
-                    <TableHead>Certificate(s)</TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  {filteredSuppliers.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={11} className="text-center py-8">
-                        No suppliers found.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    paginatedSuppliers.map((s) => (
-                      <TableRow key={s.id}>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedSupplier(s);
-                                setEditSupplierOpen(true);
-                              }}
-                              className="cursor-pointer"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedSupplier(s);
-                                setDeleteSupplierOpen(true);
-                              }}
-                              className="cursor-pointer"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-
-                        <TableCell>{s.company}</TableCell>
-                        <TableCell>{s.internalCode || "-"}</TableCell>
-                        <TableCell className="max-w-xs truncate">
-                          {s.address}
-                        </TableCell>
-                        <TableCell>{s.email || "-"}</TableCell>
-                        <TableCell>{s.website || "-"}</TableCell>
-                        <TableCell>
-                          {s.contacts?.map((c) => c.name).join(", ") || "-"}
-                        </TableCell>
-                        <TableCell>
-                          {s.contacts?.map((c) => c.phone).join(", ") || "-"}
-                        </TableCell>
-                        <TableCell>
-                          {s.forteProducts?.join(", ") || "-"}
-                        </TableCell>
-                        <TableCell>{s.products?.join(", ") || "-"}</TableCell>
-                        <TableCell>
-                          {s.certificates?.join(", ") || "-"}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-
-              {/* PAGINATION */}
-              <div className="flex items-center justify-between p-4">
-                <span className="text-sm">
-                  Page {currentPage} of {totalPages || 1}
-                </span>
-
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((p) => p - 1)}
-                  >
-                    Previous
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={currentPage === totalPages || totalPages === 0}
-                    onClick={() => setCurrentPage((p) => p + 1)}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
+        </div>
       </div>
 
       {/* MODALS */}
-      <AddSupplier open={addSupplierOpen} onOpenChange={setAddSupplierOpen} />
+      <AddSupplier
+        open={addSupplierOpen}
+        onOpenChange={setAddSupplierOpen}
+      />
 
       <FilterSupplier
         open={filterOpen}
@@ -355,6 +352,6 @@ export default function Suppliers() {
           supplier={selectedSupplier}
         />
       )}
-    </SidebarProvider>
+    </div>
   );
 }

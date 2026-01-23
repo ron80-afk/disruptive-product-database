@@ -25,7 +25,6 @@ export function SidebarBottom() {
 
   const [user, setUser] = React.useState<UserDetails | null>(null);
 
-  /* ---------------- Fetch User ---------------- */
   React.useEffect(() => {
     if (!userId) return;
 
@@ -48,19 +47,20 @@ export function SidebarBottom() {
       });
   }, [userId]);
 
-  /* ---------------- MOBILE ONLY ---------------- */
   if (!isMobile) return null;
 
   return (
     <div
       className="
-        fixed bottom-0 left-0 right-0 z-40
+        fixed left-0 right-0 z-40
         border-t border-border/50
         bg-white/95 backdrop-blur-md
         md:hidden
+        h-[144px]
       "
+      style={{ bottom: "env(safe-area-inset-bottom)" }}
     >
-      {/* NAV ICONS + LABELS */}
+      {/* NAV ICONS */}
       <div className="flex justify-around py-2">
         <Link
           href="/dashboard"
@@ -95,29 +95,17 @@ export function SidebarBottom() {
 
       {/* USER */}
       {user && userId && (
-        <div className="p-2 border-t">
-          <div
-            className="
-              rounded-xl
-              bg-white/80
-              backdrop-blur-md
-              shadow-lg
-              transition
-              hover:shadow-xl
-            "
-          >
-            <NavUser
-              user={{
-                name:
-                  `${user.Firstname} ${user.Lastname}`.trim() ||
-                  "Unknown User",
-                position: user.Role,
-                email: user.Email,
-                avatar: user.profilePicture || "/avatars/shadcn.jpg",
-              }}
-              userId={userId}
-            />
-          </div>
+        <div className="px-2 pt-1 border-t">
+          <NavUser
+            user={{
+              name:
+                `${user.Firstname} ${user.Lastname}`.trim() || "Unknown User",
+              position: user.Role,
+              email: user.Email,
+              avatar: user.profilePicture || "/avatars/shadcn.jpg",
+            }}
+            userId={userId}
+          />
         </div>
       )}
     </div>

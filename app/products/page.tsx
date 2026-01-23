@@ -3,14 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
-
-import {
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-
-import { SidebarLeft } from "@/components/sidebar-left";
-import { SidebarBottom } from "@/components/sidebar-bottom";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import AddProduct from "@/components/add-product";
 
@@ -21,7 +14,7 @@ type UserData = {
   Role: string;
 };
 
-function Products() {
+export default function Products() {
   const router = useRouter();
   const { userId } = useUser();
 
@@ -57,35 +50,25 @@ function Products() {
   }, [userId, router]);
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-      {/* DESKTOP SIDEBAR */}
-      <SidebarLeft />
+    <div className="p-6 space-y-6">
+      {/* DESKTOP SIDEBAR TOGGLE */}
+      <SidebarTrigger className="hidden md:flex" />
 
-      {/* MOBILE BOTTOM SIDEBAR */}
-      <SidebarBottom />
+      {/* HEADER */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Products</h1>
 
+        <Button
+          type="button"
+          className="gap-1 cursor-pointer"
+          onClick={() => setAddProductOpen(true)}
+        >
+          + Add Product
+        </Button>
+      </div>
 
-        <main className="flex-1 p-6 space-y-6">
-          <SidebarTrigger className="hidden md:flex" />
-
-          {/* HEADER */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold">Products</h1>
-
-            <Button
-              type="button"
-              className="gap-1 cursor-pointer"
-              onClick={() => setAddProductOpen(true)}
-            >
-              + Add Product
-            </Button>
-          </div>
-
-          <div className="text-muted-foreground">
-            No products yet.
-          </div>
-        </main>
+      <div className="text-muted-foreground">
+        No products yet.
       </div>
 
       {/* ADD PRODUCT SHEET */}
@@ -93,8 +76,6 @@ function Products() {
         open={addProductOpen}
         onOpenChange={setAddProductOpen}
       />
-    </SidebarProvider>
+    </div>
   );
 }
-
-export default Products;

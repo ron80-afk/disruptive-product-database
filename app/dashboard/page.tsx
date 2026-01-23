@@ -4,17 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
-
-import {
-  SidebarProvider,
-  SidebarTrigger,
-  useSidebar,
-} from "@/components/ui/sidebar";
-
-import { SidebarLeft } from "@/components/sidebar-left";
-import { SidebarBottom } from "@/components/sidebar-bottom";
-
-import { Menu } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 /* ---------------- Types ---------------- */
 type UserData = {
@@ -23,13 +13,9 @@ type UserData = {
   Role: string;
 };
 
-/* ===================================================== */
-/* INNER CONTENT — SAFE PLACE TO USE useSidebar() */
-/* ===================================================== */
-function DashboardContent() {
+export default function Dashboard() {
   const router = useRouter();
   const { userId, setUserId } = useUser();
-  const { toggleSidebar } = useSidebar();
 
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,55 +54,30 @@ function DashboardContent() {
   }
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="p-6 space-y-4">
 
-{/* DESKTOP SIDEBAR ONLY */}
-<div className="hidden md:block">
-  <SidebarLeft />
-</div>
+      {/* DESKTOP SIDEBAR TOGGLE */}
+      <SidebarTrigger className="hidden md:flex" />
 
-      {/* MOBILE BOTTOM SIDEBAR */}
-      <SidebarBottom />
+      {/* HEADER */}
+      <h1 className="text-2xl font-bold">
+        {loading ? (
+          "Loading..."
+        ) : user ? (
+          <>
+            Welcome, {user.Firstname} {user.Lastname}
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
+              ({user.Role})
+            </span>
+          </>
+        ) : (
+          "Welcome"
+        )}
+      </h1>
 
-      {/* MAIN CONTENT */}
-      <main className="flex-1 p-6 space-y-4">
-
-        {/* DESKTOP TOGGLE */}
-        <SidebarTrigger className="hidden md:flex" />
-
-        {/* HEADER */}
-        <h1 className="text-2xl font-bold">
-          {loading ? (
-            "Loading..."
-          ) : user ? (
-            <>
-              Welcome, {user.Firstname} {user.Lastname}
-              <span className="ml-2 text-sm font-normal text-muted-foreground">
-                ({user.Role})
-              </span>
-            </>
-          ) : (
-            "Welcome"
-          )}
-        </h1>
-
-        <Button variant="destructive" onClick={handleLogout}>
-          Logout
-        </Button>
-      </main>
-
-
+      <Button variant="destructive" onClick={handleLogout}>
+        Logout
+      </Button>
     </div>
-  );
-}
-
-/* ===================================================== */
-/* OUTER WRAPPER — PROVIDER ONLY */
-/* ===================================================== */
-export default function Dashboard() {
-  return (
-    <SidebarProvider>
-      <DashboardContent />
-    </SidebarProvider>
   );
 }
