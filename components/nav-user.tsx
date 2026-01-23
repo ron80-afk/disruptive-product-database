@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 
 import {
   BadgeCheck,
-  ChevronsUpDown,
   LogOut,
 } from "lucide-react";
 
@@ -90,32 +89,23 @@ export function NavUser({
   const doLogout = async () => {
     setIsLoggingOut(true);
 
-  try {
-    // 🔹 Fire-and-forget logging (DO NOT await)
-    logLogoutActivity().catch(console.error);
+    try {
+      logLogoutActivity().catch(console.error);
+      await fetch("/api/logout", { method: "POST" });
 
-    // 🔹 Server-side logout (cookie)
-    await fetch("/api/logout", { method: "POST" });
-
-    // 🔹 Client-side cleanup
-    localStorage.removeItem("userId");
-    setUserId(null);
-
-    // 🔹 Redirect MUST happen
-    router.replace("/login");
-  } catch (err) {
-    console.error("Logout failed:", err);
-
-    // 🚨 Even if something fails, force redirect
-    localStorage.removeItem("userId");
-    setUserId(null);
-    router.replace("/login");
-  } finally {
-    setIsLoggingOut(false);
-    setIsDialogOpen(false);
-  }
-};
-
+      localStorage.removeItem("userId");
+      setUserId(null);
+      router.replace("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+      localStorage.removeItem("userId");
+      setUserId(null);
+      router.replace("/login");
+    } finally {
+      setIsLoggingOut(false);
+      setIsDialogOpen(false);
+    }
+  };
 
   return (
     <>
@@ -145,7 +135,7 @@ export function NavUser({
                   )}
                 </div>
 
-                <ChevronsUpDown className="ml-auto size-4" />
+                {/* ⛔ collapsible icon REMOVED */}
               </SidebarMenuButton>
             </DropdownMenuTrigger>
 
@@ -155,9 +145,8 @@ export function NavUser({
               align="start"
               sideOffset={4}
             >
-              {/* USER PREVIEW */}
               <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <div className="flex items-center gap-2 px-1 py-1.5">
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src={user.avatar} alt={user.name} />
                     <AvatarFallback className="rounded-lg">
@@ -180,11 +169,10 @@ export function NavUser({
 
               <DropdownMenuSeparator />
 
-              {/* ACCOUNT */}
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
                   <Link href={`/profile?id=${encodeURIComponent(userId)}`}>
-                    <div className="flex items-center gap-2 cursor-pointer">
+                    <div className="flex items-center gap-2">
                       <BadgeCheck className="size-4" />
                       <span>Account</span>
                     </div>
@@ -194,7 +182,6 @@ export function NavUser({
 
               <DropdownMenuSeparator />
 
-              {/* LOGOUT */}
               <DropdownMenuItem
                 onClick={() => setIsDialogOpen(true)}
                 className="cursor-pointer"
@@ -208,7 +195,6 @@ export function NavUser({
         </SidebarMenuItem>
       </SidebarMenu>
 
-      {/* CONFIRM LOGOUT DIALOG */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
