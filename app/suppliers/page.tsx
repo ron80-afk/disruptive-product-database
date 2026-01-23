@@ -174,9 +174,55 @@ export default function Suppliers() {
     currentPage * ITEMS_PER_PAGE,
   );
 
+  /* ---------------- Download CSV ---------------- */
+  const handleDownloadCSV = () => {
+    if (filteredSuppliers.length === 0) return;
+
+    const headers = [
+      "Company",
+      "Internal Code",
+      "Address",
+      "Email",
+      "Website",
+      "Contact Names",
+      "Contact Phones",
+      "Forte Products",
+      "Products",
+      "Certificates",
+    ];
+
+    const rows = filteredSuppliers.map((s) => [
+      s.company,
+      s.internalCode ?? "",
+      s.address,
+      s.email ?? "",
+      s.website ?? "",
+      s.contacts?.map((c) => c.name).join(" | ") ?? "",
+      s.contacts?.map((c) => c.phone).join(" | ") ?? "",
+      s.forteProducts?.join(" | ") ?? "",
+      s.products?.join(" | ") ?? "",
+      s.certificates?.join(" | ") ?? "",
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      )
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "suppliers.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="p-6 space-y-6">
-      {/* DESKTOP SIDEBAR TOGGLE */}
       <SidebarTrigger className="hidden md:flex" />
 
       {/* HEADER */}
@@ -184,7 +230,6 @@ export default function Suppliers() {
         <h1 className="text-2xl font-semibold">Suppliers</h1>
 
         <div className="flex flex-col gap-2 w-full md:w-auto md:flex-row md:items-center">
-          {/* SEARCH */}
           <input
             type="text"
             placeholder="Search supplier..."
@@ -193,7 +238,6 @@ export default function Suppliers() {
             className="h-9 w-full md:w-64 rounded-md border px-3 text-sm"
           />
 
-          {/* ADD SUPPLIER — SHOULD BE ABOVE FILTER ON MOBILE */}
           <Button
             onClick={() => setAddSupplierOpen(true)}
             className="w-full md:w-auto cursor-pointer"
@@ -201,7 +245,6 @@ export default function Suppliers() {
             + Add Supplier
           </Button>
 
-          {/* FILTER — LAST ON MOBILE */}
           <Button
             variant="outline"
             onClick={() => setFilterOpen(true)}
@@ -209,6 +252,14 @@ export default function Suppliers() {
           >
             <Filter className="h-4 w-4" />
             Filter
+          </Button>
+
+          {/* ✅ DOWNLOAD CSV (EXCEL GREEN) */}
+          <Button
+            onClick={handleDownloadCSV}
+            className="w-full md:w-auto cursor-pointer bg-green-600 hover:bg-green-700 text-white"
+          >
+            Download CSV
           </Button>
         </div>
       </div>
@@ -291,7 +342,6 @@ export default function Suppliers() {
             </TableBody>
           </Table>
 
-          {/* PAGINATION */}
           <div className="flex items-center justify-between p-4">
             <span className="text-sm">
               Page {currentPage} of {totalPages || 1}
@@ -320,7 +370,6 @@ export default function Suppliers() {
         </div>
       </div>
 
-      {/* MODALS */}
       <AddSupplier open={addSupplierOpen} onOpenChange={setAddSupplierOpen} />
 
       <FilterSupplier
