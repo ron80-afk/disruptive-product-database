@@ -196,7 +196,7 @@ export default function Suppliers() {
           {/* ADD SUPPLIER — SHOULD BE ABOVE FILTER ON MOBILE */}
           <Button
             onClick={() => setAddSupplierOpen(true)}
-            className="w-full md:w-auto"
+            className="w-full md:w-auto cursor-pointer"
           >
             + Add Supplier
           </Button>
@@ -205,7 +205,7 @@ export default function Suppliers() {
           <Button
             variant="outline"
             onClick={() => setFilterOpen(true)}
-            className="gap-1 w-full md:w-auto"
+            className="gap-1 w-full md:w-auto cursor-pointer"
           >
             <Filter className="h-4 w-4" />
             Filter

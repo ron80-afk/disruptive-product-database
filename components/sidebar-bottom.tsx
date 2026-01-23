@@ -52,7 +52,7 @@ export function SidebarBottom() {
   return (
     <div
       className="
-        fixed left-0 right-0 z-40
+        fixed left-0 right-0 z-60
         border-t border-border/50
         bg-white/95 backdrop-blur-md
         md:hidden

@@ -642,6 +642,17 @@
     --sidebar-ring: oklch(0.439 0 0);
   }
 
+  /* Allow bottom sidebar clicks even when Sheet is open */
+[data-radix-sheet-overlay] {
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  [data-radix-sheet-overlay] {
+    pointer-events: none;
+  }
+}
+
   /* Firefox */
   .custom-scrollbar {
     scrollbar-width: none;

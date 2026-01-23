@@ -56,8 +56,9 @@ function AddProduct({ open, onOpenChange }: AddProductProps) {
   }, [userId]);
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg">
+    <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
+    <SheetContent
+      className=" w-full sm:max-w-lg pb-[140px] z-50">
         <SheetHeader>
           <SheetTitle>Add Product</SheetTitle>
           <SheetDescription>
