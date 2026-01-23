@@ -40,6 +40,7 @@ const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
+
 type SidebarContextProps = {
   state: "expanded" | "collapsed"
   open: boolean
@@ -200,70 +201,6 @@ function Sidebar({
     )
   }
 
-if (isMobile) {
-  return (
-    <>
-      {/* CLOSED STATE — GRAY PILL (BOTTOM, ALWAYS VISIBLE) */}
-      {!openMobile && (
-        <div
-          className="
-      fixed
-      bottom-0
-      left-0
-      right-0
-      z-[9999]
-      flex
-      justify-center
-      pb-3
-    "
-        >
-          <button
-            onClick={() => setOpenMobile(true)}
-            className="
-        h-2
-        w-24
-        rounded-full
-        bg-muted-foreground/40
-        active:scale-95
-        transition
-        cursor-pointer
-        hover:bg-muted-foreground/60
-      "
-            aria-label="Open sidebar"
-          />
-        </div>
-      )}
-
-      <Drawer open={openMobile} onOpenChange={setOpenMobile}>
-<DrawerContent
-  className="
-    bg-sidebar text-sidebar-foreground
-    max-h-[85svh]
-    rounded-t-2xl
-    p-0
-  "
->
-  {/* ACCESSIBILITY REQUIRED TITLE */}
-  <VisuallyHidden>
-    <DrawerTitle>Sidebar navigation</DrawerTitle>
-  </VisuallyHidden>
-          {/* DRAG / CLOSE HANDLE */}
-          <div
-            className="sticky top-0 z-10 flex justify-center py-3 cursor-pointer"
-            onClick={() => setOpenMobile(false)}
-          >
-            <div className="h-2 w-24 rounded-full bg-muted-foreground/40" />
-          </div>
-
-          {/* SIDEBAR CONTENT */}
-          <div className="flex flex-col">
-            {children}
-          </div>
-        </DrawerContent>
-      </Drawer>
-    </>
-  )
-}
 
   return (
     <div

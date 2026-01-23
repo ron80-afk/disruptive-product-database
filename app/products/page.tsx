@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import { SidebarLeft } from "@/components/sidebar-left";
+import { SidebarBottom } from "@/components/sidebar-bottom";
 import { Button } from "@/components/ui/button";
 import AddProduct from "@/components/add-product";
 
@@ -58,7 +59,12 @@ function Products() {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
-        <SidebarLeft />
+      {/* DESKTOP SIDEBAR */}
+      <SidebarLeft />
+
+      {/* MOBILE BOTTOM SIDEBAR */}
+      <SidebarBottom />
+
 
         <main className="flex-1 p-6 space-y-6">
           <SidebarTrigger className="hidden md:flex" />

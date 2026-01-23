@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SidebarLeft } from "@/components/sidebar-left";
+import { SidebarBottom } from "@/components/sidebar-bottom";
 import { Button } from "@/components/ui/button";
 import AddSupplier from "@/components/add-supplier";
 import EditSupplier from "@/components/edit-supplier";
@@ -81,6 +82,13 @@ function Suppliers() {
 
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
+    // SEARCH
+  const [search, setSearch] = useState("");
+
+  // PAGINATION
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
   /* ---------------- Auth / User ---------------- */
   useEffect(() => {
     if (userId === null) return;
@@ -127,11 +135,43 @@ function Suppliers() {
   return () => unsub();
 }, []);
 
+/* ---------------- Search + Pagination Logic ---------------- */
+
+// SEARCH FILTER
+const filteredSuppliers = suppliers.filter((s) => {
+  const keyword = search.toLowerCase();
+
+  return (
+    s.company?.toLowerCase().includes(keyword) ||
+    s.internalCode?.toLowerCase().includes(keyword) ||
+    s.address?.toLowerCase().includes(keyword) ||
+    s.email?.toLowerCase().includes(keyword) ||
+    s.website?.toLowerCase().includes(keyword) ||
+    s.contacts?.some(
+      (c) =>
+        c.name.toLowerCase().includes(keyword) ||
+        c.phone.toLowerCase().includes(keyword)
+    )
+  );
+});
+
+// PAGINATION
+const totalPages = Math.ceil(filteredSuppliers.length / ITEMS_PER_PAGE);
+
+const paginatedSuppliers = filteredSuppliers.slice(
+  (currentPage - 1) * ITEMS_PER_PAGE,
+  currentPage * ITEMS_PER_PAGE
+);
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
-        {/* SIDEBAR */}
-        <SidebarLeft />
+      {/* DESKTOP SIDEBAR */}
+      <SidebarLeft />
+
+      {/* MOBILE BOTTOM SIDEBAR */}
+      <SidebarBottom />
+
 
         {/* MAIN */}
         <main className="flex-1 p-6 space-y-6">
