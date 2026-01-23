@@ -24,7 +24,13 @@ import { toast } from "sonner";
 
 import { useUser } from "@/contexts/UserContext";
 
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+} from "firebase/firestore";
+
 import { db } from "@/lib/firebase";
 
 /* ---------------- Types ---------------- */
@@ -44,6 +50,11 @@ type AddSupplierProps = {
 function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
   const { userId } = useUser();
   const [user, setUser] = useState<UserDetails | null>(null);
+
+  /* ---------------- VALIDATION STATES ---------------- */
+  const [companyError, setCompanyError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [isDuplicateCompany, setIsDuplicateCompany] = useState(false);
 
   /* ---------------- Base Fields ---------------- */
   const [company, setCompany] = useState("");
@@ -83,6 +94,48 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
       });
   }, [userId]);
 
+  /* ---------------- DUPLICATE COMPANY CHECK ---------------- */
+  useEffect(() => {
+    if (!company.trim()) {
+      setCompanyError("");
+      setIsDuplicateCompany(false);
+      return;
+    }
+
+    const checkDuplicateCompany = async () => {
+      const snap = await getDocs(collection(db, "suppliers"));
+
+      const exists = snap.docs.some(
+        (doc) =>
+          doc.data().isActive !== false &&
+          doc.data().company?.toLowerCase() === company.toLowerCase(),
+      );
+
+      if (exists) {
+        setCompanyError("Company already exists");
+        setIsDuplicateCompany(true);
+      } else {
+        setCompanyError("");
+        setIsDuplicateCompany(false);
+      }
+    };
+
+    checkDuplicateCompany();
+  }, [company]);
+
+  /* ---------------- EMAIL VALIDATION ---------------- */
+  useEffect(() => {
+    if (!email) {
+      setEmailError("");
+      return;
+    }
+
+    if (!email.includes("@")) {
+      setEmailError("Invalid email format");
+    } else {
+      setEmailError("");
+    }
+  }, [email]);
   /* ---------------- Helpers ---------------- */
   const updateList = (
     setter: React.Dispatch<React.SetStateAction<string[]>>,
@@ -171,7 +224,6 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
-
       <SheetContent className="w-full sm:max-w-xl overflow-y-auto px-6 z-50pb-[140px]">
         <SheetHeader>
           <SheetTitle>Add Supplier</SheetTitle>
@@ -205,6 +257,9 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
               onChange={(e) => setCompany(e.target.value)}
               placeholder="Company name"
             />
+            {companyError && (
+              <p className="text-sm text-red-600">{companyError}</p>
+            )}
           </div>
 
           {/* Internal Code */}
@@ -236,6 +291,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="company@email.com"
             />
+            {emailError && <p className="text-sm text-red-600">{emailError}</p>}
           </div>
 
           {/* Website */}
@@ -282,6 +338,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
                     type="button"
                     size="icon"
                     variant="outline"
+                    className="cursor-pointer"
                     onClick={() => {
                       addRowAfter(setContactNames, index);
                       addRowAfter(setContactNumbers, index);
@@ -294,6 +351,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
                     type="button"
                     size="icon"
                     variant="outline"
+                    className="cursor-pointer"
                     disabled={contactNames.length === 1}
                     onClick={() => {
                       removeRow(setContactNames, index);
@@ -329,6 +387,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
                     type="button"
                     size="icon"
                     variant="outline"
+                    className="cursor-pointer"
                     onClick={() => addRowAfter(setForteProducts, index)}
                   >
                     <Plus className="h-4 w-4" />
@@ -338,6 +397,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
                     type="button"
                     size="icon"
                     variant="outline"
+                    className="cursor-pointer"
                     disabled={forteProducts.length === 1}
                     onClick={() => removeRow(setForteProducts, index)}
                   >
@@ -370,6 +430,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
                     type="button"
                     size="icon"
                     variant="outline"
+                    className="cursor-pointer"
                     onClick={() => addRowAfter(setProducts, index)}
                   >
                     <Plus className="h-4 w-4" />
@@ -379,6 +440,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
                     type="button"
                     size="icon"
                     variant="outline"
+                    className="cursor-pointer"
                     disabled={products.length === 1}
                     onClick={() => removeRow(setProducts, index)}
                   >
@@ -411,6 +473,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
                     type="button"
                     size="icon"
                     variant="outline"
+                    className="cursor-pointer"
                     onClick={() => addRowAfter(setCertificates, index)}
                   >
                     <Plus className="h-4 w-4" />
@@ -420,6 +483,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
                     type="button"
                     size="icon"
                     variant="outline"
+                    className="cursor-pointer"
                     disabled={certificates.length === 1}
                     onClick={() => removeRow(setCertificates, index)}
                   >
@@ -444,7 +508,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
             type="button"
             className="cursor-pointer"
             onClick={handleSaveSupplier}
-            disabled={!user?.ReferenceID}
+            disabled={!user?.ReferenceID || isDuplicateCompany || !!emailError}
           >
             Save Supplier
           </Button>
