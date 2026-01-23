@@ -6,8 +6,7 @@ import { UserProvider } from "@/contexts/UserContext";
 import { Toaster } from "sonner";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { SidebarLeft } from "@/components/sidebar-left";
-import { SidebarBottom } from "@/components/sidebar-bottom";
+import LayoutShell from "@/components/layout-shell";
 
 /* 🔑 VIEWPORT PROTECTION */
 export const viewport = {
@@ -44,29 +43,7 @@ export default function RootLayout({
       >
         <UserProvider>
           <SidebarProvider>
-            <div className="relative flex min-h-[100svh] w-full">
-
-              <div className="hidden md:block">
-                <SidebarLeft />
-              </div>
-
-              <div className="md:hidden">
-                <SidebarBottom />
-              </div>
-
-              <main
-                className="
-                  flex-1
-                  overflow-y-auto
-                  overscroll-contain
-                  pb-[calc(144px+env(safe-area-inset-bottom))]
-                  md:pb-0
-                "
-              >
-                {children}
-              </main>
-
-            </div>
+            <LayoutShell>{children}</LayoutShell>
           </SidebarProvider>
 
           <Toaster

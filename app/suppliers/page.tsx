@@ -66,8 +66,9 @@ export default function Suppliers() {
   const [deleteSupplierOpen, setDeleteSupplierOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
 
-  const [selectedSupplier, setSelectedSupplier] =
-    useState<Supplier | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+    null,
+  );
 
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
@@ -112,10 +113,7 @@ export default function Suppliers() {
 
   /* ---------------- Fetch Suppliers (Realtime) ---------------- */
   useEffect(() => {
-    const q = query(
-      collection(db, "suppliers"),
-      orderBy("createdAt", "desc")
-    );
+    const q = query(collection(db, "suppliers"), orderBy("createdAt", "desc"));
 
     const unsub = onSnapshot(q, (snapshot) => {
       const list = snapshot.docs
@@ -148,7 +146,7 @@ export default function Suppliers() {
       s.contacts?.some(
         (c) =>
           c.name.toLowerCase().includes(keyword) ||
-          c.phone.toLowerCase().includes(keyword)
+          c.phone.toLowerCase().includes(keyword),
       );
 
     const filterMatch =
@@ -173,7 +171,7 @@ export default function Suppliers() {
 
   const paginatedSuppliers = filteredSuppliers.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   return (
@@ -185,19 +183,27 @@ export default function Suppliers() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-semibold">Suppliers</h1>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 w-full md:w-auto md:flex-row md:items-center">
           <input
             type="text"
             placeholder="Search supplier..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-9 w-64 rounded-md border px-3 text-sm"
+            className="
+        h-9
+        w-full
+        md:w-64
+        rounded-md
+        border
+        px-3
+        text-sm
+      "
           />
 
           <Button
             variant="outline"
             onClick={() => setFilterOpen(true)}
-            className="gap-1 cursor-pointer"
+            className="gap-1 w-full md:w-auto"
           >
             <Filter className="h-4 w-4" />
             Filter
@@ -205,7 +211,7 @@ export default function Suppliers() {
 
           <Button
             onClick={() => setAddSupplierOpen(true)}
-            className="cursor-pointer"
+            className="w-full md:w-auto"
           >
             + Add Supplier
           </Button>
@@ -281,13 +287,9 @@ export default function Suppliers() {
                     <TableCell>
                       {s.contacts?.map((c) => c.phone).join(", ") || "-"}
                     </TableCell>
-                    <TableCell>
-                      {s.forteProducts?.join(", ") || "-"}
-                    </TableCell>
+                    <TableCell>{s.forteProducts?.join(", ") || "-"}</TableCell>
                     <TableCell>{s.products?.join(", ") || "-"}</TableCell>
-                    <TableCell>
-                      {s.certificates?.join(", ") || "-"}
-                    </TableCell>
+                    <TableCell>{s.certificates?.join(", ") || "-"}</TableCell>
                   </TableRow>
                 ))
               )}
@@ -313,9 +315,7 @@ export default function Suppliers() {
               <Button
                 size="sm"
                 variant="outline"
-                disabled={
-                  currentPage === totalPages || totalPages === 0
-                }
+                disabled={currentPage === totalPages || totalPages === 0}
                 onClick={() => setCurrentPage((p) => p + 1)}
               >
                 Next
@@ -326,10 +326,7 @@ export default function Suppliers() {
       </div>
 
       {/* MODALS */}
-      <AddSupplier
-        open={addSupplierOpen}
-        onOpenChange={setAddSupplierOpen}
-      />
+      <AddSupplier open={addSupplierOpen} onOpenChange={setAddSupplierOpen} />
 
       <FilterSupplier
         open={filterOpen}
