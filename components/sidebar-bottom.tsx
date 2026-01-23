@@ -56,7 +56,7 @@ export function SidebarBottom() {
         border-t border-border/50
         bg-white/95 backdrop-blur-md
         md:hidden
-        h-[144px]
+        h-[120px]
       "
       style={{ bottom: "env(safe-area-inset-bottom)" }}
     >

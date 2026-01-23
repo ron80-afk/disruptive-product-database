@@ -184,22 +184,24 @@ export default function Suppliers() {
         <h1 className="text-2xl font-semibold">Suppliers</h1>
 
         <div className="flex flex-col gap-2 w-full md:w-auto md:flex-row md:items-center">
+          {/* SEARCH */}
           <input
             type="text"
             placeholder="Search supplier..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="
-        h-9
-        w-full
-        md:w-64
-        rounded-md
-        border
-        px-3
-        text-sm
-      "
+            className="h-9 w-full md:w-64 rounded-md border px-3 text-sm"
           />
 
+          {/* ADD SUPPLIER — SHOULD BE ABOVE FILTER ON MOBILE */}
+          <Button
+            onClick={() => setAddSupplierOpen(true)}
+            className="w-full md:w-auto"
+          >
+            + Add Supplier
+          </Button>
+
+          {/* FILTER — LAST ON MOBILE */}
           <Button
             variant="outline"
             onClick={() => setFilterOpen(true)}
@@ -207,13 +209,6 @@ export default function Suppliers() {
           >
             <Filter className="h-4 w-4" />
             Filter
-          </Button>
-
-          <Button
-            onClick={() => setAddSupplierOpen(true)}
-            className="w-full md:w-auto"
-          >
-            + Add Supplier
           </Button>
         </div>
       </div>
