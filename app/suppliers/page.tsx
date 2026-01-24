@@ -324,6 +324,7 @@ export default function Suppliers() {
                       <Button
                         variant="outline"
                         size="sm"
+                        className="cursor-pointer"
                         onClick={() => {
                           setSelectedSupplier(s);
                           setEditSupplierOpen(true);
@@ -335,6 +336,7 @@ export default function Suppliers() {
                       <Button
                         variant="destructive"
                         size="sm"
+                        className="cursor-pointer"
                         onClick={() => {
                           setSelectedSupplier(s);
                           setDeleteSupplierOpen(true);
