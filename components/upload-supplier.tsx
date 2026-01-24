@@ -81,6 +81,21 @@ const generateSupplierCode = (companyName: string) => {
   return `${prefix}-SUPP-${generateAlphaNumeric(6)}`;
 };
 
+const safeSplit = (value: any) => {
+  if (Array.isArray(value))
+    return value.map(String).map(v => v.trim()).filter(Boolean);
+
+  if (typeof value === "string")
+    return value.split("|").map(v => v.trim()).filter(Boolean);
+
+  if (value == null) return [];
+
+  return String(value)
+    .split("|")
+    .map(v => v.trim())
+    .filter(Boolean);
+};
+
 /* ---------------- Component ---------------- */
 function UploadSupplier({ open, onOpenChange }: UploadSupplierProps) {
   const { userId } = useUser();
@@ -194,10 +209,10 @@ function UploadSupplier({ open, onOpenChange }: UploadSupplierProps) {
       for (const row of rows) {
         const company = String(
           row["Company Name"] ??
-            (row as any)["Company"] ??
-            (row as any)["company name"] ??
-            (row as any)["company"] ??
-            "",
+          (row as any)["Company"] ??
+          (row as any)["company name"] ??
+          (row as any)["company"] ??
+          "",
         ).trim();
         if (!company) {
           skipped++;
@@ -208,55 +223,50 @@ function UploadSupplier({ open, onOpenChange }: UploadSupplierProps) {
         const existing = supplierMap.get(key);
 
         // 🔴 EXISTING & ACTIVE → SKIP
-if (existing?.isActive) {
-  skipped++;
-  continue;
-}
+        if (existing?.isActive) {
+          skipped++;
+          continue;
+        }
 
-/* ---------------- HELPERS ---------------- */
-const splitPipe = (v?: string) =>
-  String(v || "")
-    .split("|")
-    .map((s) => s.trim())
-    .filter(Boolean);
+        /* ---------------- HELPERS ---------------- */
+        const splitPipe = (v?: string) =>
+          String(v || "")
+            .split("|")
+            .map((s) => s.trim())
+            .filter(Boolean);
 
         // 🔁 EXISTING BUT INACTIVE → REACTIVATE
         // ♻ EXISTING (ACTIVE OR INACTIVE) → UPDATE ALL FIELDS
-// ♻ EXISTING SUPPLIER → ALWAYS UPDATE (ACTIVE OR INACTIVE)
-if (existing) {
-  const names = splitPipe(row["Contact Name(s)"]);
-  const phones = splitPipe(row["Phone Number(s)"]);
+        // ♻ EXISTING SUPPLIER → ALWAYS UPDATE (ACTIVE OR INACTIVE)
+        if (existing) {
+          const names = splitPipe(row["Contact Name(s)"]);
+          const phones = splitPipe(row["Phone Number(s)"]);
 
-  await updateDoc(doc(db, "suppliers", existing.id), {
-    internalCode: row["Internal Code"] || "",
-    addresses: splitPipe(row.Addresses),
-    emails: splitPipe(row.Emails),
-    website: row.Website || "",
-    contacts: names.map((n, i) => ({
-      name: n,
-      phone: phones[i] || "",
-    })),
-    forteProducts: splitPipe(row["Forte Product(s)"]),
-    products: splitPipe(row["Product(s)"]),
-    certificates: splitPipe(row["Certificate(s)"]),
-    isActive: true, // 🔥 auto-reactivate if needed
-    updatedAt: serverTimestamp(),
-  });
+          await updateDoc(doc(db, "suppliers", existing.id), {
+            internalCode: row["Internal Code"] || "",
+            addresses: splitPipe(row.Addresses),
+            emails: splitPipe(row.Emails),
+            website: row.Website || "",
+            contacts: names.map((n, i) => ({
+              name: n,
+              phone: phones[i] || "",
+            })),
+            forteProducts: splitPipe(row["Forte Product(s)"]),
+            products: splitPipe(row["Product(s)"]),
+            certificates: splitPipe(row["Certificate(s)"]),
+            isActive: true, // 🔥 auto-reactivate if needed
+            updatedAt: serverTimestamp(),
+          });
 
-  supplierMap.set(key, { ...existing, isActive: true });
-  reactivated++;
-  continue;
-}
+          supplierMap.set(key, { ...existing, isActive: true });
+          reactivated++;
+          continue;
+        }
 
 
         // 🟢 NEW SUPPLIER → INSERT
-        const contactNames = row["Contact Name(s)"]
-          ? row["Contact Name(s)"].split("|").map((v) => v.trim())
-          : [];
-
-        const contactPhones = row["Phone Number(s)"]
-          ? row["Phone Number(s)"].split("|").map((v) => v.trim())
-          : [];
+        const contactNames = safeSplit(row["Contact Name(s)"]);
+        const contactPhones = safeSplit(row["Phone Number(s)"]);
 
         const contacts = contactNames.map((name, i) => ({
           name,
@@ -267,21 +277,13 @@ if (existing) {
           company,
           companyCode: generateSupplierCode(company),
           internalCode: row["Internal Code"] || "",
-          addresses: row.Addresses
-            ? row.Addresses.split("|").map((v) => v.trim())
-            : [],
-          emails: row.Emails ? row.Emails.split("|").map((v) => v.trim()) : [],
+          addresses: safeSplit(row.Addresses),
+          emails: safeSplit(row.Emails),
           website: row.Website || "",
           contacts,
-          forteProducts: row["Forte Product(s)"]
-            ? row["Forte Product(s)"].split("|").map((v) => v.trim())
-            : [],
-          products: row["Product(s)"]
-            ? row["Product(s)"].split("|").map((v) => v.trim())
-            : [],
-          certificates: row["Certificate(s)"]
-            ? row["Certificate(s)"].split("|").map((v) => v.trim())
-            : [],
+          forteProducts: safeSplit(row["Forte Product(s)"]),
+          products: safeSplit(row["Product(s)"]),
+          certificates: safeSplit(row["Certificate(s)"]),
           createdBy: userId,
           referenceID: user.ReferenceID,
           isActive: true,

@@ -207,16 +207,16 @@ export default function Suppliers() {
     if (filteredSuppliers.length === 0) return;
 
     const headers = [
-      "Company",
+      "Company Name",
       "Internal Code",
       "Addresses",
       "Emails",
       "Website",
-      "Contact Names",
-      "Contact Phones",
-      "Forte Products",
-      "Products",
-      "Certificates",
+      "Contact Name(s)",
+      "Phone Number(s)",
+      "Forte Product(s)",
+      "Product(s)",
+      "Certificate(s)",
     ];
 
     const rows = filteredSuppliers.map((s) => [
