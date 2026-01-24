@@ -443,187 +443,185 @@ export default function Suppliers() {
         </Table>
       </div>
 
-      {/* MOBILE CARD VIEW */}
-      <div className="md:hidden space-y-4">
-        {filteredSuppliers.length === 0 ? (
-          <div className="text-center py-8 border rounded-md text-sm text-muted-foreground">
-            No suppliers found.
-          </div>
-        ) : (
-          paginatedSuppliers.map((s) => (
-            <div
-              key={s.id}
-              className="border rounded-lg p-4 space-y-4 shadow-sm"
+{/* MOBILE CARD VIEW */}
+<div className="md:hidden space-y-4">
+  {filteredSuppliers.length === 0 ? (
+    <div className="text-center py-8 border rounded-md text-sm text-muted-foreground">
+      No suppliers found.
+    </div>
+  ) : (
+    paginatedSuppliers.map((s) => (
+      <div
+        key={s.id}
+        className="border rounded-lg p-4 space-y-3 shadow-sm"
+      >
+        {/* HEADER */}
+        <div className="flex items-start justify-between">
+          <h3 className="text-base font-semibold underline">
+            {s.company}
+          </h3>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => {
+                setSelectedSupplier(s);
+                setEditSupplierOpen(true);
+              }}
             >
-              {/* COMPANY NAME */}
-              <h3 className="text-lg font-semibold underline">{s.company}</h3>
+              <Pencil className="h-4 w-4" />
+            </Button>
 
-              {/* FIELDS */}
-              <div className="text-sm space-y-3">
-                {/* INTERNAL CODE */}
-                <div>
-                  <div className="font-semibold text-muted-foreground">
-                    Internal Code
-                  </div>
-                  <div className="ml-2 text-muted-foreground">
-                    {s.internalCode || "-"}
-                  </div>
-                </div>
+            <Button
+              variant="destructive"
+              size="icon"
+              onClick={() => {
+                setSelectedSupplier(s);
+                               setDeleteSupplierOpen(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
 
-                {/* ADDRESSES */}
-                <div>
-                  <div className="font-semibold text-muted-foreground">
-                    Addresses
-                  </div>
-                  <div className="ml-2 text-muted-foreground">
-                    {s.addresses?.length ? (
-                      s.addresses.length === 1 ? (
-                        <div>{s.addresses[0]}</div>
-                      ) : (
-                        s.addresses.map((item, i) => (
-                          <div key={i}>{`${i + 1}. ${item}`}</div>
-                        ))
-                      )
-                    ) : (
-                      <div>-</div>
-                    )}
-                  </div>
-                </div>
+        {/* BODY */}
+        <div className="text-sm space-y-2">
 
-                {/* EMAILS */}
-                <div>
-                  <div className="font-semibold text-muted-foreground">
-                    Emails
-                  </div>
-                  <div className="ml-2 text-muted-foreground">
-                    {s.emails?.length ? (
-                      s.emails.length === 1 ? (
-                        <div>{s.emails[0]}</div>
-                      ) : (
-                        s.emails.map((item, i) => (
-                          <div key={i}>{`${i + 1}. ${item}`}</div>
-                        ))
-                      )
-                    ) : (
-                      <div>-</div>
-                    )}
-                  </div>
-                </div>
-
-                {/* WEBSITE */}
-                <div>
-                  <div className="font-semibold text-muted-foreground">
-                    Website
-                  </div>
-                  <div className="ml-2 text-muted-foreground">
-                    {s.website || "-"}
-                  </div>
-                </div>
-
-                {/* CONTACT NAMES */}
-                <div>
-                  <div className="font-semibold text-muted-foreground">
-                    Contact Name(s)
-                  </div>
-                  <div className="ml-2 text-muted-foreground">
-                    {s.contacts?.length ? (
-                      s.contacts.length === 1 ? (
-                        <div>{s.contacts[0].name}</div>
-                      ) : (
-                        s.contacts.map((c, i) => (
-                          <div key={i}>{`${i + 1}. ${c.name}`}</div>
-                        ))
-                      )
-                    ) : (
-                      <div>-</div>
-                    )}
-                  </div>
-                </div>
-
-                {/* PHONE NUMBERS */}
-                <div>
-                  <div className="font-semibold text-muted-foreground">
-                    Phone Number(s)
-                  </div>
-                  <div className="ml-2 text-muted-foreground">
-                    {s.contacts?.length ? (
-                      s.contacts.length === 1 ? (
-                        <div>{s.contacts[0].phone}</div>
-                      ) : (
-                        s.contacts.map((c, i) => (
-                          <div key={i}>{`${i + 1}. ${c.phone}`}</div>
-                        ))
-                      )
-                    ) : (
-                      <div>-</div>
-                    )}
-                  </div>
-                </div>
-
-                {/* FORTE PRODUCTS */}
-                <div>
-                  <div className="font-semibold text-muted-foreground">
-                    Forte Product(s)
-                  </div>
-                  <div className="ml-2 text-muted-foreground">
-                    {s.forteProducts?.length ? (
-                      s.forteProducts.length === 1 ? (
-                        <div>{s.forteProducts[0]}</div>
-                      ) : (
-                        s.forteProducts.map((item, i) => (
-                          <div key={i}>{`${i + 1}. ${item}`}</div>
-                        ))
-                      )
-                    ) : (
-                      <div>-</div>
-                    )}
-                  </div>
-                </div>
-
-                {/* PRODUCTS */}
-                <div>
-                  <div className="font-semibold text-muted-foreground">
-                    Product(s)
-                  </div>
-                  <div className="ml-2 text-muted-foreground">
-                    {s.products?.length ? (
-                      s.products.length === 1 ? (
-                        <div>{s.products[0]}</div>
-                      ) : (
-                        s.products.map((item, i) => (
-                          <div key={i}>{`${i + 1}. ${item}`}</div>
-                        ))
-                      )
-                    ) : (
-                      <div>-</div>
-                    )}
-                  </div>
-                </div>
-
-                {/* CERTIFICATES */}
-                <div>
-                  <div className="font-semibold text-muted-foreground">
-                    Certificate(s)
-                  </div>
-                  <div className="ml-2 text-muted-foreground">
-                    {s.certificates?.length ? (
-                      s.certificates.length === 1 ? (
-                        <div>{s.certificates[0]}</div>
-                      ) : (
-                        s.certificates.map((item, i) => (
-                          <div key={i}>{`${i + 1}. ${item}`}</div>
-                        ))
-                      )
-                    ) : (
-                      <div>-</div>
-                    )}
-                  </div>
-                </div>
-              </div>
+          {/* INTERNAL CODE */}
+          <div>
+            <strong>Internal Code:</strong>
+            <div className="ml-2 text-muted-foreground">
+              {s.internalCode || "-"}
             </div>
-          ))
-        )}
+          </div>
+
+          {/* ADDRESSES */}
+          <div>
+            <strong>Addresses:</strong>
+            <div className="ml-2 text-muted-foreground">
+              {s.addresses?.length ? (
+                s.addresses.length === 1 ? (
+                  <div>{s.addresses[0]}</div>
+                ) : (
+                  s.addresses.map((item, i) => (
+                    <div key={i}>{`${i + 1}. ${item}`}</div>
+                  ))
+                )
+              ) : (
+                <div>-</div>
+              )}
+            </div>
+          </div>
+
+          {/* EMAILS */}
+          <div>
+            <strong>Emails:</strong>
+            <div className="ml-2 text-muted-foreground">
+              {s.emails?.length ? (
+                s.emails.length === 1 ? (
+                  <div>{s.emails[0]}</div>
+                ) : (
+                  s.emails.map((item, i) => (
+                    <div key={i}>{`${i + 1}. ${item}`}</div>
+                  ))
+                )
+              ) : (
+                <div>-</div>
+              )}
+            </div>
+          </div>
+
+          {/* WEBSITE */}
+          <div>
+            <strong>Website:</strong>
+            <div className="ml-2 text-muted-foreground">
+              {s.website || "-"}
+            </div>
+          </div>
+
+          {/* CONTACTS */}
+          <div>
+            <strong>Contacts:</strong>
+            <div className="ml-2 text-muted-foreground">
+              {s.contacts?.length ? (
+                s.contacts.length === 1 ? (
+                  <div>{`${s.contacts[0].name} (${s.contacts[0].phone})`}</div>
+                ) : (
+                  s.contacts.map((c, i) => (
+                    <div key={i}>
+                      {`${i + 1}. ${c.name} (${c.phone})`}
+                    </div>
+                  ))
+                )
+              ) : (
+                <div>-</div>
+              )}
+            </div>
+          </div>
+
+          {/* FORTE PRODUCTS */}
+          <div>
+            <strong>Forte Products:</strong>
+            <div className="ml-2 text-muted-foreground">
+              {s.forteProducts?.length ? (
+                s.forteProducts.length === 1 ? (
+                  <div>{s.forteProducts[0]}</div>
+                ) : (
+                  s.forteProducts.map((item, i) => (
+                    <div key={i}>{`${i + 1}. ${item}`}</div>
+                  ))
+                )
+              ) : (
+                <div>-</div>
+              )}
+            </div>
+          </div>
+
+          {/* PRODUCTS */}
+          <div>
+            <strong>Products:</strong>
+            <div className="ml-2 text-muted-foreground">
+              {s.products?.length ? (
+                s.products.length === 1 ? (
+                  <div>{s.products[0]}</div>
+                ) : (
+                  s.products.map((item, i) => (
+                    <div key={i}>{`${i + 1}. ${item}`}</div>
+                  ))
+                )
+              ) : (
+                <div>-</div>
+              )}
+            </div>
+          </div>
+
+          {/* CERTIFICATES */}
+          <div>
+            <strong>Certificates:</strong>
+            <div className="ml-2 text-muted-foreground">
+              {s.certificates?.length ? (
+                s.certificates.length === 1 ? (
+                  <div>{s.certificates[0]}</div>
+                ) : (
+                  s.certificates.map((item, i) => (
+                    <div key={i}>{`${i + 1}. ${item}`}</div>
+                  ))
+                )
+              ) : (
+                <div>-</div>
+              )}
+            </div>
+          </div>
+
+        </div>
       </div>
+    ))
+  )}
+</div>
+
+
 
       {/* PAGINATION (OUTSIDE SCROLL) */}
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-md">

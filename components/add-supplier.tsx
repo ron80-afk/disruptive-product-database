@@ -264,7 +264,7 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
-      <SheetContent className="w-full sm:max-w-xl overflow-y-auto px-6 z-50pb-[140px]">
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto px-6 z-50 pb-[140px]">
         <SheetHeader>
           <SheetTitle>Add Supplier</SheetTitle>
           <SheetDescription>Enter supplier information</SheetDescription>
