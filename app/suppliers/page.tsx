@@ -66,8 +66,9 @@ export default function Suppliers() {
   const [deleteSupplierOpen, setDeleteSupplierOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
 
-  const [selectedSupplier, setSelectedSupplier] =
-    useState<Supplier | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+    null,
+  );
 
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
@@ -83,7 +84,10 @@ export default function Suppliers() {
   });
 
   /* 📄 Pagination */
-  const ITEMS_PER_PAGE = 10;
+  const DESKTOP_ITEMS_PER_PAGE = 10;
+  const MOBILE_ITEMS_PER_PAGE = 3;
+
+  const [itemsPerPage, setItemsPerPage] = useState(DESKTOP_ITEMS_PER_PAGE);
   const [currentPage, setCurrentPage] = useState(1);
 
   /* ---------------- Auth / User ---------------- */
@@ -133,6 +137,20 @@ export default function Suppliers() {
     setCurrentPage(1);
   }, [search, filters]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setItemsPerPage(
+        window.innerWidth < 768
+          ? MOBILE_ITEMS_PER_PAGE
+          : DESKTOP_ITEMS_PER_PAGE,
+      );
+    };
+
+    handleResize(); // initial check
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   /* ---------------- Search + Filter Logic ---------------- */
   const filteredSuppliers = suppliers.filter((s) => {
     const keyword = search.toLowerCase();
@@ -168,11 +186,11 @@ export default function Suppliers() {
   });
 
   /* ---------------- Pagination ---------------- */
-  const totalPages = Math.ceil(filteredSuppliers.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredSuppliers.length / itemsPerPage);
 
   const paginatedSuppliers = filteredSuppliers.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
   );
 
   /* ---------------- Download CSV ---------------- */
@@ -222,8 +240,9 @@ export default function Suppliers() {
     URL.revokeObjectURL(url);
   };
 
-  return (
-    <div className="p-6 space-y-6">
+return (
+  <div
+    className="h-[100dvh] overflow-y-auto p-6 space-y-6 pb-[140px] md:pb-6">
       <SidebarTrigger className="hidden md:flex" />
 
       {/* HEADER */}
@@ -264,41 +283,108 @@ export default function Suppliers() {
         </div>
       </div>
 
-{/* TABLE */}
-<div className="rounded-md border overflow-x-auto">
-  <div className="min-w-[1400px]">
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Actions</TableHead>
-          <TableHead>Company Name</TableHead>
-          <TableHead>Internal Code</TableHead>
-          <TableHead>Addresses</TableHead>
-          <TableHead>Emails</TableHead>
-          <TableHead>Website</TableHead>
-          <TableHead>Contact Name(s)</TableHead>
-          <TableHead>Phone Number(s)</TableHead>
-          <TableHead>Forte Product(s)</TableHead>
-          <TableHead>Product(s)</TableHead>
-          <TableHead>Certificate(s)</TableHead>
-        </TableRow>
-      </TableHeader>
+      {/* DESKTOP TABLE VIEW */}
+      <div className="hidden md:block rounded-md border overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Actions</TableHead>
+              <TableHead>Company Name</TableHead>
+              <TableHead>Internal Code</TableHead>
+              <TableHead>Addresses</TableHead>
+              <TableHead>Emails</TableHead>
+              <TableHead>Website</TableHead>
+              <TableHead>Contact Name(s)</TableHead>
+              <TableHead>Phone Number(s)</TableHead>
+              <TableHead>Forte Product(s)</TableHead>
+              <TableHead>Product(s)</TableHead>
+              <TableHead>Certificate(s)</TableHead>
+            </TableRow>
+          </TableHeader>
 
-      <TableBody>
+          <TableBody>
+            {filteredSuppliers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={11} className="text-center py-8">
+                  No suppliers found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedSuppliers.map((s) => (
+                <TableRow key={s.id}>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedSupplier(s);
+                          setEditSupplierOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedSupplier(s);
+                          setDeleteSupplierOpen(true);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+
+                  <TableCell>{s.company}</TableCell>
+                  <TableCell>{s.internalCode || "-"}</TableCell>
+                  <TableCell className="max-w-xs truncate">
+                    {s.addresses?.join(", ") || "-"}
+                  </TableCell>
+                  <TableCell>{s.emails?.join(", ") || "-"}</TableCell>
+                  <TableCell>{s.website || "-"}</TableCell>
+                  <TableCell>
+                    {s.contacts?.map((c) => c.name).join(", ") || "-"}
+                  </TableCell>
+                  <TableCell>
+                    {s.contacts?.map((c) => c.phone).join(", ") || "-"}
+                  </TableCell>
+                  <TableCell>{s.forteProducts?.join(", ") || "-"}</TableCell>
+                  <TableCell>{s.products?.join(", ") || "-"}</TableCell>
+                  <TableCell>{s.certificates?.join(", ") || "-"}</TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* MOBILE CARD VIEW */}
+      <div className="md:hidden space-y-4">
         {filteredSuppliers.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={11} className="text-center py-8">
-              No suppliers found.
-            </TableCell>
-          </TableRow>
+          <div className="text-center py-8 border rounded-md text-sm text-muted-foreground">
+            No suppliers found.
+          </div>
         ) : (
           paginatedSuppliers.map((s) => (
-            <TableRow key={s.id}>
-              <TableCell>
+            <div
+              key={s.id}
+              className="border rounded-lg p-4 space-y-3 shadow-sm"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="font-semibold">{s.company}</h3>
+                  <p className="text-xs text-muted-foreground">
+                    {s.internalCode || "No internal code"}
+                  </p>
+                </div>
+
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="icon"
                     onClick={() => {
                       setSelectedSupplier(s);
                       setEditSupplierOpen(true);
@@ -309,7 +395,7 @@ export default function Suppliers() {
 
                   <Button
                     variant="destructive"
-                    size="sm"
+                    size="icon"
                     onClick={() => {
                       setSelectedSupplier(s);
                       setDeleteSupplierOpen(true);
@@ -318,59 +404,67 @@ export default function Suppliers() {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </TableCell>
+              </div>
 
-              <TableCell>{s.company}</TableCell>
-              <TableCell>{s.internalCode || "-"}</TableCell>
-              <TableCell className="max-w-xs truncate">
-                {s.addresses?.join(", ") || "-"}
-              </TableCell>
-              <TableCell>{s.emails?.join(", ") || "-"}</TableCell>
-              <TableCell>{s.website || "-"}</TableCell>
-              <TableCell>
-                {s.contacts?.map((c) => c.name).join(", ") || "-"}
-              </TableCell>
-              <TableCell>
-                {s.contacts?.map((c) => c.phone).join(", ") || "-"}
-              </TableCell>
-              <TableCell>{s.forteProducts?.join(", ") || "-"}</TableCell>
-              <TableCell>{s.products?.join(", ") || "-"}</TableCell>
-              <TableCell>{s.certificates?.join(", ") || "-"}</TableCell>
-            </TableRow>
+              <div className="text-sm space-y-1">
+                <p>
+                  <strong>Addresses:</strong> {s.addresses?.join(", ") || "-"}
+                </p>
+                <p>
+                  <strong>Emails:</strong> {s.emails?.join(", ") || "-"}
+                </p>
+                <p>
+                  <strong>Website:</strong> {s.website || "-"}
+                </p>
+                <p>
+                  <strong>Contacts:</strong>{" "}
+                  {s.contacts
+                    ?.map((c) => `${c.name} (${c.phone})`)
+                    .join(", ") || "-"}
+                </p>
+                <p>
+                  <strong>Forte Products:</strong>{" "}
+                  {s.forteProducts?.join(", ") || "-"}
+                </p>
+                <p>
+                  <strong>Products:</strong> {s.products?.join(", ") || "-"}
+                </p>
+                <p>
+                  <strong>Certificates:</strong>{" "}
+                  {s.certificates?.join(", ") || "-"}
+                </p>
+              </div>
+            </div>
           ))
         )}
-      </TableBody>
-    </Table>
-  </div>
-</div>
+      </div>
 
-{/* PAGINATION (OUTSIDE SCROLL) */}
-<div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-md">
-  <span className="text-xs sm:text-sm text-center sm:text-left">
-    Page {currentPage} of {totalPages || 1}
-  </span>
+      {/* PAGINATION (OUTSIDE SCROLL) */}
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-md">
+        <span className="text-xs sm:text-sm text-center sm:text-left">
+          Page {currentPage} of {totalPages || 1}
+        </span>
 
-  <div className="flex gap-2 justify-center sm:justify-end">
-    <Button
-      size="sm"
-      variant="outline"
-      disabled={currentPage === 1}
-      onClick={() => setCurrentPage((p) => p - 1)}
-    >
-      Previous
-    </Button>
+        <div className="flex gap-2 justify-center sm:justify-end">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+          >
+            Previous
+          </Button>
 
-    <Button
-      size="sm"
-      variant="outline"
-      disabled={currentPage === totalPages || totalPages === 0}
-      onClick={() => setCurrentPage((p) => p + 1)}
-    >
-      Next
-    </Button>
-  </div>
-</div>
-
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={currentPage === totalPages || totalPages === 0}
+            onClick={() => setCurrentPage((p) => p + 1)}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
 
       <AddSupplier open={addSupplierOpen} onOpenChange={setAddSupplierOpen} />
 
