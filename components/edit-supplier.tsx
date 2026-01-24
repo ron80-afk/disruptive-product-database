@@ -24,7 +24,6 @@ import { toast } from "sonner";
 
 import { useUser } from "@/contexts/UserContext";
 
-
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 
@@ -51,8 +50,8 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
   /* ---------------- Base Fields ---------------- */
   const [company, setCompany] = useState("");
   const [internalCode, setInternalCode] = useState("");
-  const [address, setAddress] = useState("");
-  const [email, setEmail] = useState("");
+  const [addresses, setAddresses] = useState<string[]>([""]);
+  const [emails, setEmails] = useState<string[]>([""]);
   const [website, setWebsite] = useState("");
 
   /* ---------------- Multi Fields ---------------- */
@@ -62,7 +61,6 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
   const [forteProducts, setForteProducts] = useState<string[]>([""]);
   const [products, setProducts] = useState<string[]>([""]);
   const [certificates, setCertificates] = useState<string[]>([""]);
-
 
   useEffect(() => {
     if (!userId) return;
@@ -92,8 +90,15 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
 
     setCompany(supplier.company || "");
     setInternalCode(supplier.internalCode || "");
-    setAddress(supplier.address || "");
-    setEmail(supplier.email || "");
+    setAddresses(
+      supplier.addresses && supplier.addresses.length > 0
+        ? supplier.addresses
+        : [""],
+    );
+
+    setEmails(
+      supplier.emails && supplier.emails.length > 0 ? supplier.emails : [""],
+    );
     setWebsite(supplier.website || "");
 
     // ✅ CONTACTS – always at least 1 row
@@ -109,25 +114,23 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
     setForteProducts(
       supplier.forteProducts && supplier.forteProducts.length > 0
         ? supplier.forteProducts
-        : [""]
+        : [""],
     );
 
     // ✅ PRODUCTS
     setProducts(
       supplier.products && supplier.products.length > 0
         ? supplier.products
-        : [""]
+        : [""],
     );
 
     // ✅ CERTIFICATES
     setCertificates(
       supplier.certificates && supplier.certificates.length > 0
         ? supplier.certificates
-        : [""]
+        : [""],
     );
   }, [supplier]);
-
-
 
   /* ---------------- Helpers ---------------- */
   const updateList = (
@@ -161,8 +164,8 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
   /* ---------------- Save Supplier ---------------- */
   const handleSaveSupplier = async () => {
     try {
-      if (!company || !address) {
-        toast.error("Company and Address are required");
+      if (!company || addresses.every((a) => !a.trim())) {
+        toast.error("Company and at least one Address are required");
         return;
       }
 
@@ -171,35 +174,11 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
         return;
       }
 
-      const supplierData = {
-        company,
-        internalCode,
-        address,
-        email,
-        website,
-
-        contacts: contactNames.map((name, index) => ({
-          name,
-          phone: contactNumbers[index] || "",
-        })),
-
-        forteProducts: forteProducts.filter(Boolean),
-        products: products.filter(Boolean),
-        certificates: certificates.filter(Boolean),
-
-        createdBy: userId || null,
-        referenceID: user?.ReferenceID || null,
-
-        isActive: true, // ✅ DEFAULT ACTIVE
-
-        createdAt: serverTimestamp(),
-      };
-
       await updateDoc(doc(db, "suppliers", supplier.id), {
         company,
         internalCode,
-        address,
-        email,
+        addresses: addresses.filter(Boolean),
+        emails: emails.filter(Boolean),
         website,
 
         contacts: contactNames
@@ -207,7 +186,7 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
             name,
             phone: contactNumbers[index] || "",
           }))
-          .filter(c => c.name || c.phone),
+          .filter((c) => c.name || c.phone),
 
         forteProducts: forteProducts.filter(Boolean),
         products: products.filter(Boolean),
@@ -224,8 +203,8 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
       /* Reset form */
       setCompany("");
       setInternalCode("");
-      setAddress("");
-      setEmail("");
+      setAddresses([""]);
+      setEmails([""]);
       setWebsite("");
       setContactNames([""]);
       setContactNumbers([""]);
@@ -254,8 +233,8 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
         {user && (
           <div className="rounded-md border p-3 text-sm space-y-1 bg-muted/40">
             <div>
-              <span className="font-medium">Welcome:</span>{" "}
-              {user.Firstname} {user.Lastname}
+              <span className="font-medium">Welcome:</span> {user.Firstname}{" "}
+              {user.Lastname}
             </div>
             <div>
               <span className="font-medium">Role:</span> {user.Role}
@@ -287,25 +266,88 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
             />
           </div>
 
-          {/* Address */}
-          <div className="space-y-1">
-            <Label>Address</Label>
-            <Textarea
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Full address"
-            />
+          {/* Addresses */}
+          <div className="space-y-3">
+            <Label>Addresses</Label>
+
+            {addresses.map((addr, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-[1fr_auto] gap-2 items-start"
+              >
+                <Textarea
+                  value={addr}
+                  onChange={(e) =>
+                    updateList(setAddresses, index, e.target.value)
+                  }
+                  placeholder="Full address"
+                  className="min-h-[80px]"
+                />
+
+                <div className="flex flex-col gap-1">
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    className="h-9 w-9"
+                    onClick={() => addRowAfter(setAddresses, index)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    className="h-9 w-9"
+                    disabled={addresses.length === 1}
+                    onClick={() => removeRow(setAddresses, index)}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* Email */}
-          <div className="space-y-1">
-            <Label>Email</Label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="company@email.com"
-            />
+          {/* Emails */}
+          <div className="space-y-3">
+            <Label>Emails</Label>
+
+            {emails.map((mail, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-[1fr_auto] gap-2 items-center"
+              >
+                <Input
+                  type="email"
+                  value={mail}
+                  placeholder="company@email.com"
+                  onChange={(e) => updateList(setEmails, index, e.target.value)}
+                />
+
+                <div className="flex gap-1">
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    onClick={() => addRowAfter(setEmails, index)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    disabled={emails.length === 1}
+                    onClick={() => removeRow(setEmails, index)}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Website */}
@@ -506,10 +548,7 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
             Cancel
           </Button>
 
-          <Button
-            type="button"
-            onClick={handleSaveSupplier}
-          >
+          <Button type="button" onClick={handleSaveSupplier}>
             Save Supplier
           </Button>
         </SheetFooter>
