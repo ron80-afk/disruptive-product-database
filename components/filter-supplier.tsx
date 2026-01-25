@@ -3,6 +3,11 @@
 import * as React from "react";
 import { useState } from "react";
 
+import countries from "i18n-iso-countries";
+import enLocale from "i18n-iso-countries/langs/en.json";
+
+countries.registerLocale(enLocale);
+
 import {
   Dialog,
   DialogContent,
@@ -20,6 +25,8 @@ export type SupplierFilterValues = {
   internalCode: string;
   email: string;
   hasContacts: boolean | null;
+  sortAlpha: "asc" | "desc" | "";
+  phoneCountry: string;
 };
 
 type FilterSupplierProps = {
@@ -28,7 +35,6 @@ type FilterSupplierProps = {
   onApply: (filters: SupplierFilterValues) => void;
 };
 
-/* ---------------- Component ---------------- */
 export default function FilterSupplier({
   open,
   onOpenChange,
@@ -38,6 +44,8 @@ export default function FilterSupplier({
   const [internalCode, setInternalCode] = useState("");
   const [email, setEmail] = useState("");
   const [hasContacts, setHasContacts] = useState<boolean | null>(null);
+  const [sortAlpha, setSortAlpha] = useState<"asc" | "desc" | "">("");
+  const [phoneCountry, setPhoneCountry] = useState("");
 
   const handleApply = () => {
     onApply({
@@ -45,8 +53,9 @@ export default function FilterSupplier({
       internalCode,
       email,
       hasContacts,
+      sortAlpha,
+      phoneCountry,
     });
-
     onOpenChange(false);
   };
 
@@ -55,16 +64,28 @@ export default function FilterSupplier({
     setInternalCode("");
     setEmail("");
     setHasContacts(null);
+    setSortAlpha("");
+    setPhoneCountry("");
 
     onApply({
       company: "",
       internalCode: "",
       email: "",
       hasContacts: null,
+      sortAlpha: "",
+      phoneCountry: "",
     });
 
     onOpenChange(false);
   };
+
+  const countryOptions = Object.entries(
+    countries.getNames("en", { select: "official" })
+  ).map(([code, name]) => ({
+    code,
+    name,
+  }));
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -77,80 +98,98 @@ export default function FilterSupplier({
 
         <div className="space-y-4 text-sm">
           {/* Company */}
-          <div className="space-y-1">
+          <div>
             <label className="font-medium">Company Name</label>
             <input
-              type="text"
+              className="w-full h-9 border rounded-md px-3"
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              placeholder="Enter company name"
-              className="w-full h-9 rounded-md border px-3"
             />
           </div>
 
           {/* Internal Code */}
-          <div className="space-y-1">
+          <div>
             <label className="font-medium">Internal Code</label>
             <input
-              type="text"
+              className="w-full h-9 border rounded-md px-3"
               value={internalCode}
               onChange={(e) => setInternalCode(e.target.value)}
-              placeholder="Enter internal code"
-              className="w-full h-9 rounded-md border px-3"
             />
           </div>
 
           {/* Email */}
-          <div className="space-y-1">
-            <label className="font-medium">Email</label>
+          <div>
+            <label className="font-medium">Email Contains</label>
             <input
-              type="text"
+              className="w-full h-9 border rounded-md px-3"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter email"
-              className="w-full h-9 rounded-md border px-3"
             />
           </div>
 
-          {/* Contacts */}
-          <div className="space-y-1">
+          {/* Has Contacts */}
+          <div>
             <label className="font-medium">Has Contacts</label>
             <select
+              className="w-full h-9 border rounded-md px-3"
               value={
                 hasContacts === null
                   ? ""
                   : hasContacts
-                  ? "yes"
-                  : "no"
+                    ? "yes"
+                    : "no"
               }
               onChange={(e) => {
-                if (e.target.value === "") setHasContacts(null);
+                if (!e.target.value) setHasContacts(null);
                 else setHasContacts(e.target.value === "yes");
               }}
-              className="w-full h-9 rounded-md border px-3"
             >
               <option value="">Any</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
+              <option value="yes">With Contacts</option>
+              <option value="no">Without Contacts</option>
+            </select>
+          </div>
+
+          {/* Phone Country */}
+          <div>
+            <label className="font-medium">Contact Phone Country</label>
+            <select
+              className="w-full h-9 border rounded-md px-3"
+              value={phoneCountry}
+              onChange={(e) => setPhoneCountry(e.target.value)}
+            >
+              <option value="">Any</option>
+              {countryOptions.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+
+          {/* Alphabetical Sort */}
+          <div>
+            <label className="font-medium">Alphabetical Order</label>
+            <select
+              className="w-full h-9 border rounded-md px-3"
+              value={sortAlpha}
+              onChange={(e) =>
+                setSortAlpha(e.target.value as "asc" | "desc" | "")
+              }
+            >
+              <option value="">None</option>
+              <option value="asc">A → Z</option>
+              <option value="desc">Z → A</option>
             </select>
           </div>
         </div>
 
         <DialogFooter className="gap-2 pt-4">
-          <Button
-            variant="secondary"
-            onClick={handleClear}
-            className="cursor-pointer"
-          >
+          <Button variant="secondary" onClick={handleClear}>
             Clear
           </Button>
-
-          <Button
-            onClick={handleApply}
-            className="cursor-pointer"
-          >
-            Apply Filter
-          </Button>
+          <Button onClick={handleApply}>Apply Filter</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

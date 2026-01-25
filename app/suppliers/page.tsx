@@ -25,6 +25,8 @@ import {
 
 import { Pencil, Trash2, Filter, Upload } from "lucide-react";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { getCountryCallingCode, CountryCode } from "libphonenumber-js";
+
 import { db } from "@/lib/firebase";
 
 /* ---------------- Types ---------------- */
@@ -83,6 +85,8 @@ export default function Suppliers() {
     internalCode: "",
     email: "",
     hasContacts: null,
+    sortAlpha: "",
+    phoneCountry: "",
   });
 
   /* 📄 Pagination */
@@ -154,38 +158,55 @@ export default function Suppliers() {
   }, []);
 
   /* ---------------- Search + Filter Logic ---------------- */
-  const filteredSuppliers = suppliers.filter((s) => {
-    const keyword = search.toLowerCase();
+  const filteredSuppliers = suppliers
+    .filter((s) => {
+      const keyword = search.toLowerCase();
 
-    const searchMatch =
-      s.company.toLowerCase().includes(keyword) ||
-      s.internalCode?.toLowerCase().includes(keyword) ||
-      s.addresses?.some((a) => a.toLowerCase().includes(keyword)) ||
-      s.emails?.some((e) => e.toLowerCase().includes(keyword)) ||
-      s.contacts?.some(
-        (c) =>
-          c.name.toLowerCase().includes(keyword) ||
-          c.phone.toLowerCase().includes(keyword),
-      );
+      const searchMatch =
+        s.company.toLowerCase().includes(keyword) ||
+        s.internalCode?.toLowerCase().includes(keyword) ||
+        s.addresses?.some((a) => a.toLowerCase().includes(keyword)) ||
+        s.emails?.some((e) => e.toLowerCase().includes(keyword)) ||
+        s.contacts?.some(
+          (c) =>
+            c.name.toLowerCase().includes(keyword) ||
+            c.phone.toLowerCase().includes(keyword),
+        );
 
-    const filterMatch =
-      (!filters.company ||
-        s.company.toLowerCase().includes(filters.company.toLowerCase())) &&
-      (!filters.internalCode ||
-        s.internalCode
-          ?.toLowerCase()
-          .includes(filters.internalCode.toLowerCase())) &&
-      (!filters.email ||
-        s.emails?.some((e) =>
-          e.toLowerCase().includes(filters.email.toLowerCase()),
-        )) &&
-      (filters.hasContacts === null ||
-        (filters.hasContacts
-          ? s.contacts && s.contacts.length > 0
-          : !s.contacts || s.contacts.length === 0));
+      const filterMatch =
+        (!filters.company ||
+          s.company.toLowerCase().includes(filters.company.toLowerCase())) &&
+        (!filters.internalCode ||
+          s.internalCode
+            ?.toLowerCase()
+            .includes(filters.internalCode.toLowerCase())) &&
+        (!filters.email ||
+          s.emails?.some((e) =>
+            e.toLowerCase().includes(filters.email.toLowerCase()),
+          )) &&
+        (filters.hasContacts === null ||
+          (filters.hasContacts
+            ? s.contacts && s.contacts.length > 0
+            : !s.contacts || s.contacts.length === 0)) &&
+        (!filters.phoneCountry ||
+          s.contacts?.some((c) => {
+            try {
+              const callingCode = getCountryCallingCode(filters.phoneCountry as CountryCode);
+              return c.phone?.startsWith("+" + callingCode);
+            } catch {
+              return false;
+            }
+          }));
 
-    return searchMatch && filterMatch;
-  });
+      return searchMatch && filterMatch;
+    })
+    .sort((a, b) => {
+      if (!filters.sortAlpha) return 0;
+      return filters.sortAlpha === "asc"
+        ? a.company.localeCompare(b.company)
+        : b.company.localeCompare(a.company);
+    });
+
 
   /* ---------------- Pagination ---------------- */
   const totalPages = Math.ceil(filteredSuppliers.length / itemsPerPage);
@@ -374,8 +395,8 @@ export default function Suppliers() {
                       ? s.addresses.length === 1
                         ? s.addresses[0]
                         : s.addresses.map((item, i) => (
-                            <div key={i}>{`${i + 1}. ${item}`}</div>
-                          ))
+                          <div key={i}>{`${i + 1}. ${item}`}</div>
+                        ))
                       : "-"}
                   </TableCell>
 
@@ -385,8 +406,8 @@ export default function Suppliers() {
                       ? s.emails.length === 1
                         ? s.emails[0]
                         : s.emails.map((item, i) => (
-                            <div key={i}>{`${i + 1}. ${item}`}</div>
-                          ))
+                          <div key={i}>{`${i + 1}. ${item}`}</div>
+                        ))
                       : "-"}
                   </TableCell>
 
@@ -401,8 +422,8 @@ export default function Suppliers() {
                       ? s.contacts.length === 1
                         ? s.contacts[0].name
                         : s.contacts.map((c, i) => (
-                            <div key={i}>{`${i + 1}. ${c.name}`}</div>
-                          ))
+                          <div key={i}>{`${i + 1}. ${c.name}`}</div>
+                        ))
                       : "-"}
                   </TableCell>
 
@@ -412,8 +433,8 @@ export default function Suppliers() {
                       ? s.contacts.length === 1
                         ? s.contacts[0].phone
                         : s.contacts.map((c, i) => (
-                            <div key={i}>{`${i + 1}. ${c.phone}`}</div>
-                          ))
+                          <div key={i}>{`${i + 1}. ${c.phone}`}</div>
+                        ))
                       : "-"}
                   </TableCell>
 
@@ -423,8 +444,8 @@ export default function Suppliers() {
                       ? s.forteProducts.length === 1
                         ? s.forteProducts[0]
                         : s.forteProducts.map((item, i) => (
-                            <div key={i}>{`${i + 1}. ${item}`}</div>
-                          ))
+                          <div key={i}>{`${i + 1}. ${item}`}</div>
+                        ))
                       : "-"}
                   </TableCell>
 
@@ -434,8 +455,8 @@ export default function Suppliers() {
                       ? s.products.length === 1
                         ? s.products[0]
                         : s.products.map((item, i) => (
-                            <div key={i}>{`${i + 1}. ${item}`}</div>
-                          ))
+                          <div key={i}>{`${i + 1}. ${item}`}</div>
+                        ))
                       : "-"}
                   </TableCell>
 
@@ -445,8 +466,8 @@ export default function Suppliers() {
                       ? s.certificates.length === 1
                         ? s.certificates[0]
                         : s.certificates.map((item, i) => (
-                            <div key={i}>{`${i + 1}. ${item}`}</div>
-                          ))
+                          <div key={i}>{`${i + 1}. ${item}`}</div>
+                        ))
                       : "-"}
                   </TableCell>
                 </TableRow>
