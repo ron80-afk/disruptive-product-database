@@ -22,7 +22,6 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-
 import { useUser } from "@/contexts/UserContext";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -35,7 +34,6 @@ type UserDetails = {
   Lastname: string;
   Role: string;
   Email: string;
-  ReferenceID?: string;
 };
 
 type AddProductProps = {
@@ -371,7 +369,6 @@ const list = snap.docs
           Lastname: data.Lastname ?? "",
           Role: data.Role ?? "",
           Email: data.Email ?? "",
-          ReferenceID: data.ReferenceID ?? "",
         });
       })
       .catch((err) => {
@@ -379,20 +376,13 @@ const list = snap.docs
       });
   }, [userId]);
 
-  /* ---------------- PLACEHOLDER HANDLER ---------------- */
-  const handleSaveProduct = () => {
-    // intentionally empty
-    // firestore logic will be added in the future
-  };
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
-    <SheetContent
-      className=" w-full sm:max-w-lg pb-[140px] z-50">
+      <SheetContent className="w-full sm:max-w-lg overflow-y-auto px-6 z-50 pb-[140px]">
         <SheetHeader>
           <SheetTitle className="text-red-700">Add Product</SheetTitle>
           <SheetDescription>
-            Product creation sheet (fields to be added later)
+            Step {step} of {STEPS.length}
           </SheetDescription>
         </SheetHeader>
 
@@ -511,18 +501,317 @@ const list = snap.docs
           </div>
         )}
 
-        {/* BODY (EMPTY ON PURPOSE) */}
-        <div className="flex items-center justify-center text-muted-foreground text-sm mt-10">
-          Product form fields will go here
-        </div>
+        {/* ---------------- Placeholder for other steps ---------------- */}
+        {step !== 1 && step !== 2 && step !== 3 && step !== 4 && (
+          <div className="flex items-center justify-center text-muted-foreground text-sm mt-10">
+            {STEPS[step - 1]} fields will go here
+          </div>
+        )}
+        {/* ---------------- Step 1 ---------------- */}
+        {step === 1 && (
+          <div className="space-y-4 mt-6">
+            <div className="text-sm font-medium text-red-700">Select Type:</div>
 
-        <SheetFooter className="mt-6">
+            <div className="grid gap-3">
+              {[
+                {
+                  key: "PER_INDUSTRY",
+                  title: "Type 1 – Per Industry",
+                  desc: "Products grouped by industry classification",
+                },
+                {
+                  key: "PER_PRODUCT_FAMILY",
+                  title: "Type 2 – Per Product Family",
+                  desc: "Products grouped by product family",
+                },
+              ].map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => setProductType(t.key as typeof productType)}
+                  className={cn(
+                    "rounded-md border p-4 text-left transition-all",
+                    productType === t.key
+                      ? "border-red-600 bg-gradient-to-r from-red-50 to-red-100 shadow-sm"
+                      : "hover:bg-red-50",
+                  )}
+                >
+                  <div className="font-medium text-red-700">{t.title}</div>
+                  <div className="text-xs text-muted-foreground">{t.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ---------------- Step 2 (CARD STYLE) ---------------- */}
+        {step === 2 && (
+          <div className="space-y-4 mt-6">
+            <div className="text-sm font-medium text-red-700">
+              Select Category:
+            </div>
+
+            <div className="grid gap-3">
+              {productType &&
+                CATEGORY_OPTIONS[productType].map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setCategory(option)}
+                    className={cn(
+                      "rounded-md border p-4 text-left transition-all",
+                      category === option
+                        ? "border-red-600 bg-gradient-to-r from-red-50 to-red-100 shadow-sm"
+                        : "hover:bg-red-50",
+                    )}
+                  >
+                    <div className="font-medium text-red-700">{option}</div>
+                  </button>
+                ))}
+            </div>
+          </div>
+        )}
+
+        {/* ---------------- Step 3 ---------------- */}
+        {step === 3 && productType && category && (
+          <div className="space-y-4 mt-6">
+            <div className="text-sm font-medium text-red-700">
+              Select Product Type:
+            </div>
+
+            <div className="grid gap-3">
+              {PRODUCT_TYPE_OPTIONS[productType]?.[category]?.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setProductSubType(option)}
+                  className={cn(
+                    "rounded-md border p-4 text-left transition-all",
+                    productSubType === option
+                      ? "border-red-600 bg-gradient-to-r from-red-50 to-red-100 shadow-sm"
+                      : "hover:bg-red-50",
+                  )}
+                >
+                  <div className="font-medium text-red-700">{option}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ---------------- Step 4: Company Description ---------------- */}
+        {step === 4 && (
+          <div className="space-y-6 mt-6">
+            {/* Select Company + Company Code */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Select Company */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Select Company</label>
+                <Select
+                  value={supplierId}
+                  onValueChange={(id) => {
+                    const selected = suppliers.find((s) => s.id === id);
+
+                    setSupplierId(id);
+                    setCompany(selected?.company || "");
+                    setCompanyCode(selected?.companyCode || "");
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select supplier" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {suppliers.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.company}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Company Code */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Company Code</label>
+                <input
+                  className="w-full border rounded-md px-3 py-2 text-sm bg-muted"
+                  value={companyCode}
+                  disabled
+                />
+              </div>
+            </div>
+
+            {/* Upload Images */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Product Images</label>
+
+              {images.map((img, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-[1fr_auto] gap-2 items-center"
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      updateImage(index, e.target.files?.[0] || null)
+                    }
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                  />
+
+                  <div className="flex gap-1">
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                      onClick={() => addImageAfter(index)}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                      disabled={images.length === 1}
+                      onClick={() => removeImage(index)}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Product Model */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Product Model</label>
+              <input
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={productModel}
+                onChange={(e) => setProductModel(e.target.value)}
+              />
+            </div>
+
+            {/* Product Code */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Product Code</label>
+              <input
+                className="w-full border rounded-md px-3 py-2 text-sm bg-muted"
+                value={productCode}
+                disabled
+              />
+            </div>
+
+            {/* Unit Cost */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Unit Cost</label>
+              <input
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={unitCost}
+                onChange={(e) =>
+                  /^\d*\.?\d*$/.test(e.target.value) &&
+                  setUnitCost(e.target.value)
+                }
+                placeholder="0.00"
+              />
+            </div>
+
+            {/* SRP */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium">SRP (PHP)</label>
+              <input
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={srp}
+                onChange={(e) =>
+                  /^\d*\.?\d*$/.test(e.target.value) && setSrp(e.target.value)
+                }
+                placeholder="₱0.00"
+              />
+            </div>
+
+            {/* Pricing Category */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Category</label>
+              <select
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={pricingCategory}
+                onChange={(e) => setPricingCategory(e.target.value)}
+              >
+                <option value="">Select</option>
+                <option value="Economy">Economy</option>
+                <option value="Mid-End">Mid-End</option>
+                <option value="To Be Evaluated">To Be Evaluated</option>
+              </select>
+            </div>
+
+            {/* Packaging Dimensions */}
+            <div className="grid grid-cols-3 gap-2">
+              <input
+                placeholder="Length"
+                className="border rounded-md px-2 py-2 text-sm"
+                value={packagingLength}
+                onChange={(e) => setPackagingLength(e.target.value)}
+              />
+              <input
+                placeholder="Width"
+                className="border rounded-md px-2 py-2 text-sm"
+                value={packagingWidth}
+                onChange={(e) => setPackagingWidth(e.target.value)}
+              />
+              <input
+                placeholder="Height"
+                className="border rounded-md px-2 py-2 text-sm"
+                value={packagingHeight}
+                onChange={(e) => setPackagingHeight(e.target.value)}
+              />
+            </div>
+
+            {/* QTY / CTN */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium">QTY / CTN</label>
+              <input
+                type="number"
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={qtyPerCtn}
+                onChange={(e) => setQtyPerCtn(Number(e.target.value))}
+              />
+            </div>
+
+            {/* MOQ */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium">MOQ</label>
+              <input
+                type="number"
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={moq}
+                onChange={(e) => setMoq(Number(e.target.value))}
+              />
+            </div>
+
+            {/* Warranty */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Warranty (Years)</label>
+              <input
+                type="number"
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={warrantyYears}
+                onChange={(e) => setWarrantyYears(Number(e.target.value))}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ---------------- Footer ---------------- */}
+        <SheetFooter className="mt-6 flex justify-between">
           <Button
-            variant="secondary"
-            onClick={() => onOpenChange(false)}
-            className="cursor-pointer"
+            variant="outline"
+            onClick={() => setStep((s) => Math.max(1, s - 1))}
+            disabled={step === 1}
+            className="hover:border-red-600 hover:text-red-700"
           >
-            Close
+            Back
           </Button>
 
           {step < STEPS.length ? (
