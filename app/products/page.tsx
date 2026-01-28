@@ -58,13 +58,24 @@ export default function Products() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Products</h1>
 
-        <Button
-          type="button"
-          className="gap-1 cursor-pointer"
-          onClick={() => setAddProductOpen(true)}
-        >
-          + Add Product
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            className="gap-1 cursor-pointer"
+            onClick={() => setAddProductOpen(true)}
+          >
+            + Add Product
+          </Button>
+
+          {/* ADD PRODUCT V2 */}
+          <Button
+            type="button"
+            className="gap-1 cursor-pointer"
+            onClick={() => router.push("/add-product")}
+          >
+            + Add Product v2
+          </Button>
+        </div>
       </div>
 
       <div className="text-muted-foreground">
