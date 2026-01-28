@@ -41,6 +41,13 @@ type TechSpec = {
   value: string;
 };
 
+/* ===== START CHANGE: CLASSIFICATION TYPE ===== */
+type ClassificationType =
+  | "Type 1 Per Industry"
+  | "Type 2 Per Product Family"
+  | null;
+/* ===== END CHANGE: CLASSIFICATION TYPE ===== */
+
 export default function AddProductPage() {
   const router = useRouter();
   const { userId } = useUser();
@@ -56,10 +63,10 @@ export default function AddProductPage() {
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  /* classification */
-  const [targetWebsites, setTargetWebsites] = useState<string[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [brands, setBrands] = useState<string[]>([]);
+  /* ===== START CHANGE: CLASSIFICATION STATE ===== */
+  const [classificationType, setClassificationType] =
+    useState<ClassificationType>(null);
+  /* ===== END CHANGE: CLASSIFICATION STATE ===== */
 
   /* ---------------- Fetch User ---------------- */
   useEffect(() => {
@@ -124,17 +131,21 @@ export default function AddProductPage() {
         return;
       }
 
+      if (!classificationType) {
+        toast.error("Please select a classification type");
+        return;
+      }
+
       await addDoc(collection(db, "products"), {
         productName,
         technicalSpecifications: technicalSpecs.filter(
           (s) => s.key || s.value,
         ),
         mainImage: mainImage?.name || null,
-        classification: {
-          targetWebsites,
-          categories,
-          brands,
-        },
+
+        /* ===== SAVED AS-IS ===== */
+        classificationType, // "Type 1 Per Industry" | "Type 2 Per Product Family"
+
         createdBy: userId,
         referenceID: user?.ReferenceID || null,
         isActive: true,
@@ -261,7 +272,7 @@ export default function AddProductPage() {
             </CardContent>
           </Card>
 
-          {/* CLASSIFICATION CARD */}
+          {/* ===== START CHANGE: CLASSIFICATION CARD ===== */}
           <Card>
             <CardHeader>
               <CardTitle className="text-center text-sm">
@@ -269,70 +280,58 @@ export default function AddProductPage() {
               </CardTitle>
             </CardHeader>
 
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label>Target Website</Label>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    onCheckedChange={() =>
-                      setTargetWebsites(["Disruptive Solutions Inc"])
-                    }
-                  />
-                  <span className="text-sm">
-                    Disruptive Solutions Inc
-                  </span>
-                </div>
+            <CardContent className="space-y-4">
+              <Label>Select Type</Label>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  checked={
+                    classificationType ===
+                    "Type 1 Per Industry"
+                  }
+                  onCheckedChange={() =>
+                    setClassificationType(
+                      "Type 1 Per Industry",
+                    )
+                  }
+                />
+                <span className="text-sm">
+                  Type 1 Per Industry
+                </span>
               </div>
 
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      onCheckedChange={() =>
-                        setCategories(["Lit - Downlight"])
-                      }
-                    />
-                    <span className="text-sm">Lit - Downlight</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      onCheckedChange={() =>
-                        setCategories(["Lit - Led Bulb"])
-                      }
-                    />
-                    <span className="text-sm">Lit - Led Bulb</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Brand</Label>
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      onCheckedChange={() => setBrands(["Zumtobel"])}
-                    />
-                    <span className="text-sm">Zumtobel</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      onCheckedChange={() => setBrands(["LIT"])}
-                    />
-                    <span className="text-sm">LIT</span>
-                  </div>
-                </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  checked={
+                    classificationType ===
+                    "Type 2 Per Product Family"
+                  }
+                  onCheckedChange={() =>
+                    setClassificationType(
+                      "Type 2 Per Product Family",
+                    )
+                  }
+                />
+                <span className="text-sm">
+                  Type 2 Per Product Family
+                </span>
               </div>
             </CardContent>
           </Card>
+          {/* ===== END CHANGE: CLASSIFICATION CARD ===== */}
         </div>
       </div>
 
       <div className="flex gap-2">
-        <Button variant="secondary" onClick={() => router.push("/products")}>
+        <Button
+          variant="secondary"
+          onClick={() => router.push("/products")}
+        >
           Cancel
         </Button>
-        <Button onClick={handleSaveProduct}>Save Product</Button>
+        <Button onClick={handleSaveProduct}>
+          Save Product
+        </Button>
       </div>
     </div>
   );
