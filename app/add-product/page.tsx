@@ -10,12 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
@@ -25,6 +20,11 @@ import {
   collection,
   addDoc,
   serverTimestamp,
+  query,
+  where,
+  doc,
+  updateDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -41,11 +41,12 @@ type TechSpec = {
   value: string;
 };
 
-/* ===== CLASSIFICATION TYPE ===== */
-type ClassificationType =
-  | "Type 1 Per Industry"
-  | "Type 2 Per Product Family"
-  | null;
+type Classification = {
+  id: string;
+  name: string;
+};
+
+type ClassificationType = string | null;
 
 export default function AddProductPage() {
   const router = useRouter();
@@ -64,6 +65,12 @@ export default function AddProductPage() {
 
   const [classificationType, setClassificationType] =
     useState<ClassificationType>(null);
+
+  /* ===== CLASSIFICATION (REAL-TIME + SOFT DELETE) ===== */
+  const [classificationTypes, setClassificationTypes] = useState<
+    Classification[]
+  >([]);
+  const [newClassification, setNewClassification] = useState("");
 
   /* ---------------- Fetch User ---------------- */
   useEffect(() => {
@@ -85,12 +92,29 @@ export default function AddProductPage() {
       .finally(() => setLoading(false));
   }, [userId, router]);
 
+  /* ---------------- REAL-TIME CLASSIFICATIONS ---------------- */
+  useEffect(() => {
+    const q = query(
+      collection(db, "classificationTypes"),
+      where("isActive", "==", true),
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const types = snapshot.docs
+        .map((docSnap) => ({
+          id: docSnap.id,
+          name: docSnap.data().name as string,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      setClassificationTypes(types);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   /* ---------------- Helpers ---------------- */
-  const updateSpec = (
-    index: number,
-    field: "key" | "value",
-    value: string,
-  ) => {
+  const updateSpec = (index: number, field: "key" | "value", value: string) => {
     setTechnicalSpecs((prev) =>
       prev.map((item, i) =>
         i === index ? { ...item, [field]: value } : item,
@@ -118,7 +142,41 @@ export default function AddProductPage() {
     setPreview(URL.createObjectURL(file));
   };
 
-  /* ---------------- Save ---------------- */
+  /* ---------------- Classification Handlers ---------------- */
+  const handleAddClassification = async () => {
+    if (!newClassification.trim()) return;
+
+    if (
+      classificationTypes.some(
+        (c) => c.name === newClassification.trim(),
+      )
+    ) {
+      toast.error("Classification already exists");
+      return;
+    }
+
+    await addDoc(collection(db, "classificationTypes"), {
+      name: newClassification.trim(),
+      isActive: true,
+      createdAt: serverTimestamp(),
+    });
+
+    setNewClassification("");
+  };
+
+  const handleRemoveClassification = async (item: Classification) => {
+    await updateDoc(doc(db, "classificationTypes", item.id), {
+      isActive: false,
+    });
+
+    if (classificationType === item.name) {
+      setClassificationType(null);
+    }
+
+    toast.success("Classification removed");
+  };
+
+  /* ---------------- Save Product ---------------- */
   const handleSaveProduct = async () => {
     try {
       if (!productName.trim()) {
@@ -154,7 +212,6 @@ export default function AddProductPage() {
   if (loading) return null;
 
   return (
-    /* ✅ SAME SCROLL LOGIC AS SUPPLIERS */
     <div className="h-[100dvh] overflow-y-auto p-6 space-y-6 pb-[140px] md:pb-6">
       <SidebarTrigger className="hidden md:flex" />
 
@@ -269,30 +326,54 @@ export default function AddProductPage() {
             </CardHeader>
 
             <CardContent className="space-y-4">
-              <Label>Select Type</Label>
+              <Label>Add / Select Type</Label>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  checked={classificationType === "Type 1 Per Industry"}
-                  onCheckedChange={() =>
-                    setClassificationType("Type 1 Per Industry")
+              <div className="flex gap-2">
+                <Input
+                  value={newClassification}
+                  onChange={(e) =>
+                    setNewClassification(e.target.value)
                   }
+                  placeholder="Add classification..."
                 />
-                <span className="text-sm">Type 1 Per Industry</span>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={handleAddClassification}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  checked={
-                    classificationType === "Type 2 Per Product Family"
-                  }
-                  onCheckedChange={() =>
-                    setClassificationType("Type 2 Per Product Family")
-                  }
-                />
-                <span className="text-sm">
-                  Type 2 Per Product Family
-                </span>
+              <Separator />
+
+              <div className="space-y-2">
+                {classificationTypes.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        checked={classificationType === item.name}
+                        onCheckedChange={() =>
+                          setClassificationType(item.name)
+                        }
+                      />
+                      <span className="text-sm">{item.name}</span>
+                    </div>
+
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() =>
+                        handleRemoveClassification(item)
+                      }
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
