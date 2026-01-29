@@ -57,7 +57,7 @@ export default function AddProductSelectProductType({
           db,
           "classificationTypes",
           classificationId,
-          "productTypes",
+          "categoryTypes",
           item.id,
         ),
         {
@@ -65,7 +65,7 @@ export default function AddProductSelectProductType({
         },
       );
 
-      toast.success("Product type updated");
+      toast.success("Category type updated");
       setOpen(false);
     } catch {
       toast.error("Failed to update product type");
@@ -88,11 +88,11 @@ export default function AddProductSelectProductType({
         </DialogHeader>
 
         <div className="space-y-2">
-          <Label>Product Type Name</Label>
+          <Label>Category Type Name</Label>
           <Input
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder="Enter product type name..."
+            placeholder="Enter Category Type Name..."
           />
         </div>
 
