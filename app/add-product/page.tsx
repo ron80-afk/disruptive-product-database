@@ -87,6 +87,8 @@ export default function AddProductPage() {
   const [selectedProductTypes, setSelectedProductTypes] = useState<string[]>(
     [],
   );
+  const [classificationSearch, setClassificationSearch] = useState("");
+  const [productTypeSearch, setProductTypeSearch] = useState("");
 
   /* ---------------- Fetch User ---------------- */
   useEffect(() => {
@@ -127,17 +129,16 @@ export default function AddProductPage() {
       where("isActive", "==", true),
     );
 
-const unsubscribe = onSnapshot(q, (snapshot) => {
-  const list = snapshot.docs
-    .map((docSnap) => ({
-      id: docSnap.id,
-      name: docSnap.data().name as string,
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list = snapshot.docs
+        .map((docSnap) => ({
+          id: docSnap.id,
+          name: docSnap.data().name as string,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
 
-  setProductTypes(list);
-});
-
+      setProductTypes(list);
+    });
 
     return () => unsubscribe();
   }, [classificationType, classificationTypes]);
@@ -420,7 +421,16 @@ const unsubscribe = onSnapshot(q, (snapshot) => {
 
             <CardContent className="space-y-4">
               {/* ===== CLASSIFICATION ===== */}
-              <Label>Add / Select Type</Label>
+              <div className="flex items-center justify-between gap-2">
+                <Label>Add / Select Type</Label>
+
+                <Input
+                  value={classificationSearch}
+                  onChange={(e) => setClassificationSearch(e.target.value)}
+                  placeholder="Search type..."
+                  className="h-8 w-[160px]"
+                />
+              </div>
 
               <div className="flex gap-2">
                 <Input
@@ -439,41 +449,66 @@ const unsubscribe = onSnapshot(q, (snapshot) => {
 
               <Separator />
 
-              <div className="space-y-2">
-                {classificationTypes.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between gap-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={classificationType === item.name}
-                        onCheckedChange={() => setClassificationType(item.name)}
-                      />
-                      <span className="text-sm">{item.name}</span>
-                    </div>
-
-                    <div className="flex gap-1">
-                      {/* EDIT */}
-                      <AddProductSelectType item={item} />
-
-                      {/* DELETE */}
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => handleRemoveClassification(item)}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                    </div>
+              <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                {classificationTypes.filter((item) =>
+                  item.name
+                    .toLowerCase()
+                    .includes(classificationSearch.toLowerCase()),
+                ).length === 0 ? (
+                  <div className="text-center text-sm text-muted-foreground py-6">
+                    No Records Found.
                   </div>
-                ))}
+                ) : (
+                  classificationTypes
+                    .filter((item) =>
+                      item.name
+                        .toLowerCase()
+                        .includes(classificationSearch.toLowerCase()),
+                    )
+                    .map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between gap-2"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            checked={classificationType === item.name}
+                            onCheckedChange={() =>
+                              setClassificationType(item.name)
+                            }
+                          />
+                          <span className="text-sm">{item.name}</span>
+                        </div>
+
+                        <div className="flex gap-1">
+                          <AddProductSelectType item={item} />
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => handleRemoveClassification(item)}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                )}
               </div>
 
               {/* ===== PRODUCT TYPE (UI ONLY – SEPARATE SECTION) ===== */}
               <Separator />
 
-              <Label>Add / Select Product Type</Label>
+              <div className="flex items-center justify-between gap-2">
+                <Label>Add / Select Product Type</Label>
+
+                <Input
+                  value={productTypeSearch}
+                  onChange={(e) => setProductTypeSearch(e.target.value)}
+                  placeholder="Search product type..."
+                  className="h-8 w-[160px]"
+                  disabled={!classificationType}
+                />
+              </div>
 
               <div className="flex gap-2">
                 <Input
@@ -492,42 +527,56 @@ const unsubscribe = onSnapshot(q, (snapshot) => {
                 </Button>
               </div>
 
-              <div className="space-y-2 mt-3">
-                {productTypes.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between gap-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={selectedProductTypes.includes(item.name)}
-                        onCheckedChange={() => toggleProductType(item.name)}
-                      />
-                      <span className="text-sm">{item.name}</span>
-                    </div>
-
-                    <div className="flex gap-1">
-                      {/* ✏️ EDIT PRODUCT TYPE */}
-                      <AddProductSelectProductType
-                        classificationId={
-                          classificationTypes.find(
-                            (c) => c.name === classificationType,
-                          )?.id || ""
-                        }
-                        item={item}
-                      />
-
-                      {/* ➖ DELETE PRODUCT TYPE */}
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => handleRemoveProductType(item)}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                    </div>
+              <div className="space-y-2 mt-3 max-h-[220px] overflow-y-auto pr-1">
+                {productTypes.filter((item) =>
+                  item.name
+                    .toLowerCase()
+                    .includes(productTypeSearch.toLowerCase()),
+                ).length === 0 ? (
+                  <div className="text-center text-sm text-muted-foreground py-6">
+                    No Records Found.
                   </div>
-                ))}
+                ) : (
+                  productTypes
+                    .filter((item) =>
+                      item.name
+                        .toLowerCase()
+                        .includes(productTypeSearch.toLowerCase()),
+                    )
+                    .map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between gap-2"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            checked={selectedProductTypes.includes(item.name)}
+                            onCheckedChange={() => toggleProductType(item.name)}
+                          />
+                          <span className="text-sm">{item.name}</span>
+                        </div>
+
+                        <div className="flex gap-1">
+                          <AddProductSelectProductType
+                            classificationId={
+                              classificationTypes.find(
+                                (c) => c.name === classificationType,
+                              )?.id || ""
+                            }
+                            item={item}
+                          />
+
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => handleRemoveProductType(item)}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                )}
               </div>
             </CardContent>
           </Card>
