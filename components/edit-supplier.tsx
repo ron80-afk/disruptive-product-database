@@ -239,6 +239,8 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
       }
 
       await updateDoc(doc(db, "suppliers", supplier.id), {
+        supplierId: supplier.id, // 👈 ADD THIS
+
         company,
         internalCode,
         addresses: addresses.filter(Boolean),
@@ -259,6 +261,7 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
         referenceID: user?.ReferenceID || supplier.referenceID || null,
         updatedAt: serverTimestamp(),
       });
+
 
       toast.success("Supplier saved successfully", {
         description: company,

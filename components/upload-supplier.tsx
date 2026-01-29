@@ -243,6 +243,8 @@ function UploadSupplier({ open, onOpenChange }: UploadSupplierProps) {
           const phones = splitPipe(row["Phone Number(s)"]);
 
           await updateDoc(doc(db, "suppliers", existing.id), {
+            supplierId: existing.id, // 👈 ADD THIS
+
             companyCode:
               (existing as any)?.companyCode ||
               generateSupplierCode(company),
@@ -263,6 +265,7 @@ function UploadSupplier({ open, onOpenChange }: UploadSupplierProps) {
           });
 
 
+
           supplierMap.set(key, { ...existing, isActive: true });
           reactivated++;
           continue;
@@ -278,7 +281,8 @@ function UploadSupplier({ open, onOpenChange }: UploadSupplierProps) {
           phone: contactPhones[i] || "",
         }));
 
-        await addDoc(collection(db, "suppliers"), {
+        // 1️⃣ Create supplier (Firestore auto-generates ID)
+        const docRef = await addDoc(collection(db, "suppliers"), {
           company,
           companyCode: generateSupplierCode(company),
           internalCode: row["Internal Code"] || "",
@@ -294,6 +298,13 @@ function UploadSupplier({ open, onOpenChange }: UploadSupplierProps) {
           isActive: true,
           createdAt: serverTimestamp(),
         });
+
+        // 2️⃣ Save Firestore ID as companyId
+        // 2️⃣ Save Firestore ID as supplierId
+        await updateDoc(doc(db, "suppliers", docRef.id), {
+          supplierId: docRef.id,
+        });
+
 
         supplierMap.set(key, { id: "new", isActive: true });
         inserted++;

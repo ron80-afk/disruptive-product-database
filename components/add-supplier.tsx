@@ -27,9 +27,12 @@ import { useUser } from "@/contexts/UserContext";
 import {
   collection,
   addDoc,
+  updateDoc, // 👈 ADD THIS
+  doc,       // 👈 ADD THIS
   serverTimestamp,
   getDocs,
 } from "firebase/firestore";
+
 
 import { db } from "@/lib/firebase";
 
@@ -233,7 +236,13 @@ function AddSupplier({ open, onOpenChange }: AddSupplierProps) {
         createdAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, "suppliers"), supplierData);
+      // 1️⃣ CREATE supplier
+      const docRef = await addDoc(collection(db, "suppliers"), supplierData);
+
+      // 2️⃣ SAVE supplierId (same as Firestore document ID)
+      await updateDoc(doc(db, "suppliers", docRef.id), {
+        supplierId: docRef.id,
+      });
 
       toast.success("Supplier saved successfully", {
         description: company,
