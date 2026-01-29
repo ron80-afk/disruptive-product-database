@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { Pencil } from "lucide-react";
-import { doc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  collection,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "sonner";
 
@@ -26,7 +33,7 @@ type ProductType = {
 };
 
 type Props = {
-  classificationId: string; // parent
+  classificationId: string;
   item: ProductType;
 };
 
@@ -52,6 +59,7 @@ export default function AddProductSelectProductType({
     try {
       setSaving(true);
 
+      // 1️⃣ Update master category type
       await updateDoc(
         doc(
           db,
@@ -63,6 +71,32 @@ export default function AddProductSelectProductType({
         {
           name: value.trim(),
         },
+      );
+
+      // 2️⃣ Update ALL products using this category type
+      const q = query(
+        collection(db, "products"),
+        where("categoryTypes", "array-contains", {
+          id: item.id,
+          name: item.name,
+        }),
+      );
+
+      const snap = await getDocs(q);
+
+      await Promise.all(
+        snap.docs.map((p) => {
+          const data = p.data();
+
+          const updatedCategoryTypes = (data.categoryTypes || []).map(
+            (c: any) =>
+              c.id === item.id ? { ...c, name: value.trim() } : c,
+          );
+
+          return updateDoc(p.ref, {
+            categoryTypes: updatedCategoryTypes,
+          });
+        }),
       );
 
       toast.success("Category type updated");
@@ -93,6 +127,7 @@ export default function AddProductSelectProductType({
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder="Enter Category Type Name..."
+            disabled={saving}
           />
         </div>
 

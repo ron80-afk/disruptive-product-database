@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { Pencil } from "lucide-react";
-import { doc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  collection,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "sonner";
 
@@ -48,9 +55,26 @@ export default function AddCategorySelectType({ item }: Props) {
     try {
       setSaving(true);
 
+      // 1️⃣ Update master classification
       await updateDoc(doc(db, "classificationTypes", item.id), {
         name: value.trim(),
       });
+
+      // 2️⃣ Update ALL products using this classification
+      const q = query(
+        collection(db, "products"),
+        where("classification.id", "==", item.id),
+      );
+
+      const snap = await getDocs(q);
+
+      await Promise.all(
+        snap.docs.map((p) =>
+          updateDoc(p.ref, {
+            "classification.name": value.trim(),
+          }),
+        ),
+      );
 
       toast.success("Classification updated");
       setOpen(false);

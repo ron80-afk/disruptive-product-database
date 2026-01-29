@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Minus, ImagePlus, Pencil } from "lucide-react";
+import { Plus, Minus, ImagePlus } from "lucide-react";
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,10 @@ type Classification = {
   name: string;
 };
 
-type ClassificationType = string | null;
+type SelectedClassification = {
+  id: string;
+  name: string;
+} | null;
 
 type CategoryType = {
   id: string;
@@ -74,7 +77,7 @@ export default function AddProductPage() {
   const [preview, setPreview] = useState<string | null>(null);
 
   const [classificationType, setClassificationType] =
-    useState<ClassificationType>(null);
+    useState<SelectedClassification>(null);
 
   /* ===== CLASSIFICATION (REAL-TIME + SOFT DELETE) ===== */
   const [classificationTypes, setClassificationTypes] = useState<
@@ -85,11 +88,14 @@ export default function AddProductPage() {
   /* ===== PRODUCT TYPE STATE ===== */
   const [newCategoryType, setNewCategoryType] = useState("");
   const [categoryTypes, setCategoryTypes] = useState<CategoryType[]>([]);
-  const [selectedCategoryTypes, setSelectedCategoryTypes] = useState<string[]>(
-    [],
-  );
+  type SelectedCategoryType = {
+    id: string;
+    name: string;
+  };
 
-  const [productTypeSearch, setProductTypeSearch] = useState("");
+  const [selectedCategoryTypes, setSelectedCategoryTypes] = useState<
+    SelectedCategoryType[]
+  >([]);
 
   const [classificationSearch, setClassificationSearch] = useState("");
   const [categoryTypeSearch, setCategoryTypeSearch] = useState("");
@@ -127,12 +133,11 @@ export default function AddProductPage() {
   /* ---------------- REAL-TIME PRODUCT TYPES (DEPENDS ON CLASSIFICATION) ---------------- */
   useEffect(() => {
     setCategoryTypes([]);
-    setSelectedCategoryTypes([]);
 
     if (!classificationType) return;
 
     const selected = classificationTypes.find(
-      (c) => c.name === classificationType,
+      (c) => c.id === classificationType.id,
     );
     if (!selected) return;
 
@@ -250,7 +255,7 @@ export default function AddProductPage() {
     if (!newCategoryType.trim() || !classificationType) return;
 
     const selected = classificationTypes.find(
-      (c) => c.name === classificationType,
+      (c) => c.id === classificationType.id,
     );
     if (!selected) return;
 
@@ -275,7 +280,7 @@ export default function AddProductPage() {
     if (!classificationType) return;
 
     const selected = classificationTypes.find(
-      (c) => c.name === classificationType,
+      (c) => c.id === classificationType.id,
     );
     if (!selected) return;
 
@@ -286,17 +291,16 @@ export default function AddProductPage() {
       },
     );
 
-    // remove if currently selected
-    setSelectedCategoryTypes((prev) =>
-      prev.filter((name) => name !== item.name),
-    );
+    setSelectedCategoryTypes((prev) => prev.filter((p) => p.id !== item.id));
 
     toast.success("Product type removed");
   };
 
-  const toggleCategoryType = (name: string) => {
+  const toggleCategoryType = (item: { id: string; name: string }) => {
     setSelectedCategoryTypes((prev) =>
-      prev.includes(name) ? prev.filter((p) => p !== name) : [...prev, name],
+      prev.some((p) => p.id === item.id)
+        ? prev.filter((p) => p.id !== item.id)
+        : [...prev, item],
     );
   };
 
@@ -305,7 +309,7 @@ export default function AddProductPage() {
       isActive: false,
     });
 
-    if (classificationType === item.name) {
+    if (classificationType?.id === item.id) {
       setClassificationType(null);
     }
 
@@ -328,10 +332,13 @@ export default function AddProductPage() {
       await addDoc(collection(db, "products"), {
         productName,
         productCode,
-        categoryTypes: selectedCategoryTypes,
+
+        classification: classificationType, // { id, name }
+
+        categoryTypes: selectedCategoryTypes, // [{ id, name }]
+
         technicalSpecifications: technicalSpecs.filter((s) => s.key || s.value),
         mainImage: mainImage?.name || null,
-        classificationType,
         createdBy: userId,
         referenceID: user?.ReferenceID || null,
         isActive: true,
@@ -521,9 +528,13 @@ export default function AddProductPage() {
                       >
                         <div className="flex items-center space-x-2">
                           <Checkbox
-                            checked={classificationType === item.name}
+                            checked={classificationType?.id === item.id}
                             onCheckedChange={() =>
-                              setClassificationType(item.name)
+                              setClassificationType(
+                                classificationType?.id === item.id
+                                  ? null
+                                  : { id: item.id, name: item.name },
+                              )
                             }
                           />
                           <span className="text-sm">{item.name}</span>
@@ -598,21 +609,26 @@ export default function AddProductPage() {
                   </div>
                 ) : (
                   categoryTypes
-                    .filter((item: CategoryType) =>
+                    .filter((item) =>
                       item.name
                         .toLowerCase()
                         .includes(categoryTypeSearch.toLowerCase()),
                     )
-                    .map((item: CategoryType) => (
+                    .map((item) => (
                       <div
                         key={item.id}
                         className="flex items-center justify-between gap-2"
                       >
                         <div className="flex items-center space-x-2">
                           <Checkbox
-                            checked={selectedCategoryTypes.includes(item.name)}
+                            checked={selectedCategoryTypes.some(
+                              (p) => p.id === item.id,
+                            )}
                             onCheckedChange={() =>
-                              toggleCategoryType(item.name)
+                              toggleCategoryType({
+                                id: item.id,
+                                name: item.name,
+                              })
                             }
                           />
                           <span className="text-sm">{item.name}</span>
@@ -620,11 +636,7 @@ export default function AddProductPage() {
 
                         <div className="flex gap-1">
                           <AddProductSelectProductType
-                            classificationId={
-                              classificationTypes.find(
-                                (c) => c.name === classificationType,
-                              )?.id || ""
-                            }
+                            classificationId={classificationType?.id || ""}
                             item={item}
                           />
 
