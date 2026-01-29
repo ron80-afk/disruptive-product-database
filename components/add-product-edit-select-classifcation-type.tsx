@@ -36,7 +36,7 @@ type Props = {
   item: Classification;
 };
 
-export default function AddCategorySelectType({ item }: Props) {
+export default function AddProductEditClassification({ item }: Props) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(item.name);
   const [saving, setSaving] = useState(false);
@@ -78,7 +78,7 @@ export default function AddCategorySelectType({ item }: Props) {
 
       toast.success("Classification updated");
       setOpen(false);
-    } catch (error) {
+    } catch {
       toast.error("Failed to update classification");
     } finally {
       setSaving(false);

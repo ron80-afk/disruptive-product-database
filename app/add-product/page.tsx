@@ -29,8 +29,13 @@ import {
 import { db } from "@/lib/firebase";
 
 /* 🔹 EDIT COMPONENT */
-import AddProductSelectType from "@/components/add-product-edit-select-category-type";
+import AddProductSelectType from "@/components/add-product-edit-select-classifcation-type";
 import AddProductSelectProductType from "@/components/add-product-edit-select-product-type";
+
+/* 🔹 DELETE (SOFT DELETE) COMPONENT */
+import AddProductDeleteClassification from "@/components/add-product-delete-select-classification-type";
+import AddProductDeleteProductType from "@/components/add-product-delete-select-product-type";
+
 
 /* ---------------- Types ---------------- */
 type UserData = {
@@ -276,24 +281,9 @@ export default function AddProductPage() {
     setNewCategoryType("");
   };
 
-  const handleRemoveCategoryType = async (item: CategoryType) => {
-    if (!classificationType) return;
-
-    const selected = classificationTypes.find(
-      (c) => c.id === classificationType.id,
-    );
-    if (!selected) return;
-
-    await updateDoc(
-      doc(db, "classificationTypes", selected.id, "categoryTypes", item.id),
-      {
-        isActive: false,
-      },
-    );
-
-    setSelectedCategoryTypes((prev) => prev.filter((p) => p.id !== item.id));
-
-    toast.success("Product type removed");
+  const handleRemoveCategoryType = async (_item: CategoryType) => {
+    // UI ONLY – no soft delete logic
+    return;
   };
 
   const toggleCategoryType = (item: { id: string; name: string }) => {
@@ -304,16 +294,9 @@ export default function AddProductPage() {
     );
   };
 
-  const handleRemoveClassification = async (item: Classification) => {
-    await updateDoc(doc(db, "classificationTypes", item.id), {
-      isActive: false,
-    });
-
-    if (classificationType?.id === item.id) {
-      setClassificationType(null);
-    }
-
-    toast.success("Classification removed");
+  const handleRemoveClassification = async (_item: Classification) => {
+    // UI ONLY – no soft delete logic
+    return;
   };
 
   /* ---------------- Save Product ---------------- */
@@ -478,7 +461,7 @@ export default function AddProductPage() {
             <CardContent className="space-y-4">
               {/* ===== CLASSIFICATION ===== */}
               <div className="flex items-center justify-between gap-2">
-                <Label>Add / Select Type</Label>
+                <Label>Add / Select Classification</Label>
 
                 <Input
                   value={classificationSearch}
@@ -542,13 +525,11 @@ export default function AddProductPage() {
 
                         <div className="flex gap-1">
                           <AddProductSelectType item={item} />
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => handleRemoveClassification(item)}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
+                          <AddProductDeleteClassification
+                            item={item}
+                            referenceID={user?.ReferenceID || ""}
+                          />
+
                         </div>
                       </div>
                     ))
@@ -559,7 +540,7 @@ export default function AddProductPage() {
               <Separator />
 
               <div className="flex items-center justify-between gap-2">
-                <Label>Add / Select Category Type</Label>
+                <Label>Add / Select Category</Label>
 
                 <Input
                   value={categoryTypeSearch}
@@ -630,13 +611,12 @@ export default function AddProductPage() {
                             item={item}
                           />
 
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => handleRemoveCategoryType(item)}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
+                          <AddProductDeleteProductType
+                            classificationId={classificationType?.id || ""}
+                            item={item}
+                            referenceID={user?.ReferenceID || ""}
+                          />
+
                         </div>
                       </div>
                     ))
