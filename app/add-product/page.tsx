@@ -587,16 +587,6 @@ export default function AddProductPage() {
                 </Button>
               </div>
 
-              {/* ===== ADD / SELECT PRODUCT TYPE ===== */}
-              <div className="flex items-center justify-between gap-2">
-                <Label>Add / Select Product Type</Label>
-
-                <Input
-                  placeholder="Search product type..."
-                  className="h-8 w-[160px]"
-                  disabled={!classificationType}
-                />
-              </div>
 
               <div className="space-y-2 mt-3 max-h-[220px] overflow-y-auto pr-1">
                 {categoryTypes.filter((item) =>
