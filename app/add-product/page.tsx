@@ -65,6 +65,7 @@ export default function AddProductPage() {
   const [loading, setLoading] = useState(true);
 
   const [productName, setProductName] = useState("");
+  const [productCode, setProductCode] = useState("");
   const [technicalSpecs, setTechnicalSpecs] = useState<TechSpec[]>([
     { key: "", value: "" },
   ]);
@@ -89,12 +90,18 @@ export default function AddProductPage() {
   );
 
   const [productTypeSearch, setProductTypeSearch] = useState("");
-  
-
 
   const [classificationSearch, setClassificationSearch] = useState("");
   const [categoryTypeSearch, setCategoryTypeSearch] = useState("");
 
+  useEffect(() => {
+    if (!productName.trim()) {
+      setProductCode("");
+      return;
+    }
+
+    setProductCode(generateProductCode(productName));
+  }, [productName]);
   /* ---------------- Fetch User ---------------- */
   useEffect(() => {
     if (!userId) {
@@ -181,6 +188,31 @@ export default function AddProductPage() {
       copy.splice(index + 1, 0, { key: "", value: "" });
       return copy;
     });
+  };
+
+  // ================= PRODUCT CODE HELPERS =================
+  const normalizeProductPrefix = (name: string) => {
+    return name
+      .replace(/[^a-zA-Z ]/g, "")
+      .split(" ")
+      .filter((w) => w)
+      .map((w) => w[0].toUpperCase())
+      .join("")
+      .slice(0, 4);
+  };
+
+  const generateAlphaNumeric = (length = 6) => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return result;
+  };
+
+  const generateProductCode = (productName: string) => {
+    const prefix = normalizeProductPrefix(productName) || "PROD";
+    return `${prefix}-PROD-${generateAlphaNumeric(6)}`;
   };
 
   const removeSpecRow = (index: number) => {
@@ -295,6 +327,7 @@ export default function AddProductPage() {
 
       await addDoc(collection(db, "products"), {
         productName,
+        productCode,
         categoryTypes: selectedCategoryTypes,
         technicalSpecifications: technicalSpecs.filter((s) => s.key || s.value),
         mainImage: mainImage?.name || null,
@@ -341,6 +374,16 @@ export default function AddProductPage() {
                 value={productName}
                 onChange={(e) => setProductName(e.target.value)}
                 placeholder="Enter product name..."
+              />
+            </div>
+
+            {/* ================= PRODUCT CODE UI ================= */}
+            <div>
+              <Label>Product Code</Label>
+              <Input
+                value={productCode}
+                disabled
+                className="opacity-100 cursor-not-allowed bg-background text-foreground"
               />
             </div>
 
