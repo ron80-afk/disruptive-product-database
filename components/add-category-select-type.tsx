@@ -29,7 +29,7 @@ type Props = {
   item: Classification;
 };
 
-export default function AddProductSelectType({ item }: Props) {
+export default function AddCategorySelectType({ item }: Props) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(item.name);
   const [saving, setSaving] = useState(false);
@@ -54,7 +54,7 @@ export default function AddProductSelectType({ item }: Props) {
 
       toast.success("Classification updated");
       setOpen(false);
-    } catch {
+    } catch (error) {
       toast.error("Failed to update classification");
     } finally {
       setSaving(false);
@@ -80,6 +80,7 @@ export default function AddProductSelectType({ item }: Props) {
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder="Enter classification name..."
+            disabled={saving}
           />
         </div>
 
