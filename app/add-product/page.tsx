@@ -424,6 +424,7 @@ export default function AddProductPage() {
 
         {/* RIGHT */}
         <div className="space-y-6">
+          {/* IMAGE */}
           <Card>
             <CardHeader>
               <CardTitle className="text-center text-sm">
@@ -454,18 +455,17 @@ export default function AddProductPage() {
             </CardContent>
           </Card>
 
+          {/* CLASSIFICATION */}
           <Card>
             <CardHeader>
               <CardTitle className="text-center text-sm">
-                CLASSIFICATION
+                CLASSIFICATION TYPE
               </CardTitle>
             </CardHeader>
 
             <CardContent className="space-y-4">
-              {/* ===== CLASSIFICATION ===== */}
               <div className="flex items-center justify-between gap-2">
-                <Label>Select Classification</Label>
-
+                <Label>Select Classification Type</Label>
                 <Input
                   value={classificationSearch}
                   onChange={(e) => setClassificationSearch(e.target.value)}
@@ -492,58 +492,58 @@ export default function AddProductPage() {
               <Separator />
 
               <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                {classificationTypes.filter((item) =>
-                  item.name
-                    .toLowerCase()
-                    .includes(classificationSearch.toLowerCase()),
-                ).length === 0 ? (
-                  <div className="text-center text-sm text-muted-foreground py-6">
-                    No Records Found.
-                  </div>
-                ) : (
-                  classificationTypes
-                    .filter((item) =>
-                      item.name
-                        .toLowerCase()
-                        .includes(classificationSearch.toLowerCase()),
-                    )
-                    .map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center justify-between gap-2"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            checked={classificationType?.id === item.id}
-                            onCheckedChange={() =>
-                              setClassificationType(
-                                classificationType?.id === item.id
-                                  ? null
-                                  : { id: item.id, name: item.name },
-                              )
-                            }
-                          />
-                          <span className="text-sm">{item.name}</span>
-                        </div>
-
-                        <div className="flex gap-1">
-                          <AddProductSelectType item={item} />
-                          <AddProductDeleteClassification
-                            item={item}
-                            referenceID={user?.ReferenceID || ""}
-                          />
-                        </div>
+                {classificationTypes
+                  .filter((item) =>
+                    item.name
+                      .toLowerCase()
+                      .includes(classificationSearch.toLowerCase()),
+                  )
+                  .map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between gap-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          checked={classificationType?.id === item.id}
+                          onCheckedChange={() =>
+                            setClassificationType(
+                              classificationType?.id === item.id
+                                ? null
+                                : {
+                                    id: item.id,
+                                    name: item.name,
+                                  },
+                            )
+                          }
+                        />
+                        <span className="text-sm">{item.name}</span>
                       </div>
-                    ))
-                )}
+
+                      <div className="flex gap-1">
+                        <AddProductSelectType item={item} />
+                        <AddProductDeleteClassification
+                          item={item}
+                          referenceID={user?.ReferenceID || ""}
+                        />
+                      </div>
+                    </div>
+                  ))}
               </div>
+            </CardContent>
+          </Card>
 
-              {/* ===== PRODUCT TYPE (UI ONLY – SEPARATE SECTION) ===== */}
-              <Separator />
+          {/* CATEGORY TYPE */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center text-sm">
+                CATEGORY TYPE
+              </CardTitle>
+            </CardHeader>
 
+            <CardContent className="space-y-4">
               <div className="flex items-center justify-between gap-2">
-                <Label>Select Category</Label>
-
+                <Label>Select Category Type</Label>
                 <Input
                   value={categoryTypeSearch}
                   onChange={(e) => setCategoryTypeSearch(e.target.value)}
@@ -570,57 +570,48 @@ export default function AddProductPage() {
                 </Button>
               </div>
 
-              <div className="space-y-2 mt-3 max-h-[220px] overflow-y-auto pr-1">
-                {categoryTypes.filter((item) =>
-                  item.name
-                    .toLowerCase()
-                    .includes(categoryTypeSearch.toLowerCase()),
-                ).length === 0 ? (
-                  <div className="text-center text-sm text-muted-foreground py-6">
-                    No Records Found.
-                  </div>
-                ) : (
-                  categoryTypes
-                    .filter((item) =>
-                      item.name
-                        .toLowerCase()
-                        .includes(categoryTypeSearch.toLowerCase()),
-                    )
-                    .map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center justify-between gap-2"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            checked={selectedCategoryTypes.some(
-                              (p) => p.id === item.id,
-                            )}
-                            onCheckedChange={() =>
-                              toggleCategoryType({
-                                id: item.id,
-                                name: item.name,
-                              })
-                            }
-                          />
-                          <span className="text-sm">{item.name}</span>
-                        </div>
+              <Separator />
 
-                        <div className="flex gap-1">
-                          <AddProductSelectProductType
-                            classificationId={classificationType?.id || ""}
-                            item={item}
-                          />
-
-                          <AddProductDeleteProductType
-                            classificationId={classificationType?.id || ""}
-                            item={item}
-                            referenceID={user?.ReferenceID || ""}
-                          />
-                        </div>
+              <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                {categoryTypes
+                  .filter((item) =>
+                    item.name
+                      .toLowerCase()
+                      .includes(categoryTypeSearch.toLowerCase()),
+                  )
+                  .map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between gap-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          checked={selectedCategoryTypes.some(
+                            (p) => p.id === item.id,
+                          )}
+                          onCheckedChange={() =>
+                            toggleCategoryType({
+                              id: item.id,
+                              name: item.name,
+                            })
+                          }
+                        />
+                        <span className="text-sm">{item.name}</span>
                       </div>
-                    ))
-                )}
+
+                      <div className="flex gap-1">
+                        <AddProductSelectProductType
+                          classificationId={classificationType?.id || ""}
+                          item={item}
+                        />
+                        <AddProductDeleteProductType
+                          classificationId={classificationType?.id || ""}
+                          item={item}
+                          referenceID={user?.ReferenceID || ""}
+                        />
+                      </div>
+                    </div>
+                  ))}
               </div>
             </CardContent>
           </Card>
