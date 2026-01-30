@@ -17,6 +17,21 @@ import { toast } from "sonner";
 import { useUser } from "@/contexts/UserContext";
 
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+import {
   collection,
   addDoc,
   serverTimestamp,
@@ -65,9 +80,19 @@ type CategoryType = {
   name: string;
 };
 
+type Supplier = {
+  supplierId: string;
+  company: string;
+};
+
 export default function AddProductPage() {
   const router = useRouter();
   const { userId } = useUser();
+
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+    null,
+  );
 
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -146,6 +171,24 @@ export default function AddProductPage() {
       )
       .finally(() => setLoading(false));
   }, [userId, router]);
+
+  /* ================= FETCH SUPPLIERS ================= */
+  useEffect(() => {
+    const q = query(collection(db, "suppliers"), where("isActive", "==", true));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const SUPPLIER_LIST = snapshot.docs.map((doc) => ({
+        supplierId: doc.id,
+        company: doc.data().company,
+      }));
+
+      SUPPLIER_LIST.sort((a, b) => a.company.localeCompare(b.company));
+
+      setSuppliers(SUPPLIER_LIST);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   /* ---------------- REAL-TIME CLASSIFICATIONS ---------------- */
 
@@ -405,6 +448,10 @@ export default function AddProductPage() {
         toast.error("Product name is required");
         return;
       }
+      if (!selectedSupplier) {
+        toast.error("Please select a supplier");
+        return;
+      }
 
       if (!classificationType) {
         toast.error("Please select a classification type");
@@ -418,6 +465,10 @@ export default function AddProductPage() {
         classificationId: classificationType.id,
         classificationName: classificationType.name, // { id, name }
 
+        supplier: {
+          supplierId: selectedSupplier.supplierId,
+          company: selectedSupplier.company,
+        },
         productTypes: selectedProductTypes.map((p) => ({
           productTypeId: p.id,
           productTypeName: p.name,
@@ -486,6 +537,58 @@ export default function AddProductPage() {
                 />
               </div>
             </div>
+{/* ================= SUPPLIER SELECT ================= */}
+<div className="space-y-2">
+  <Label>Supplier / Company</Label>
+
+  <Popover>
+    <PopoverTrigger asChild>
+      <Button
+        variant="outline"
+        role="combobox"
+        className="w-[360px] justify-between" // 🔒 FIXED WIDTH
+      >
+        <span className="truncate text-left max-w-[85%]">
+          {selectedSupplier
+            ? selectedSupplier.company
+            : "Select supplier..."}
+        </span>
+
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+    </PopoverTrigger>
+
+    <PopoverContent className="p-0 w-[360px]">
+      <Command>
+        <CommandInput placeholder="Search supplier..." />
+        <CommandEmpty>No supplier found.</CommandEmpty>
+
+        <CommandGroup>
+          {suppliers.map((supplier) => (
+            <CommandItem
+              key={supplier.supplierId}
+              value={supplier.company}
+              onSelect={() => setSelectedSupplier(supplier)}
+            >
+              <Check
+                className={cn(
+                  "mr-2 h-4 w-4",
+                  selectedSupplier?.supplierId === supplier.supplierId
+                    ? "opacity-100"
+                    : "opacity-0",
+                )}
+              />
+              <span className="truncate">
+                {supplier.company}
+              </span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      </Command>
+    </PopoverContent>
+  </Popover>
+</div>
+
 
             <div className="space-y-3">
               <Label>Technical Specifications</Label>

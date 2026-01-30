@@ -31,6 +31,8 @@ import {
   serverTimestamp,
   getDocs,
   collection,
+  query,     // ✅ ADD
+  where,     // ✅ ADD
 } from "firebase/firestore";
 
 
@@ -238,29 +240,51 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
         return;
       }
 
-      await updateDoc(doc(db, "suppliers", supplier.id), {
-        supplierId: supplier.id, // 👈 ADD THIS
+await updateDoc(doc(db, "suppliers", supplier.id), {
+  supplierId: supplier.id,
+  company,
+  internalCode,
+  addresses: addresses.filter(Boolean),
+  emails: emails.filter(Boolean),
+  website,
+  contacts: contactNames
+    .map((name, index) => ({
+      name,
+      phone: contactNumbers[index] || "",
+    }))
+    .filter((c) => c.name || c.phone),
+  forteProducts: forteProducts.filter(Boolean),
+  products: products.filter(Boolean),
+  certificates: certificates.filter(Boolean),
+  referenceID: user?.ReferenceID || supplier.referenceID || null,
+  updatedAt: serverTimestamp(),
+});
 
-        company,
-        internalCode,
-        addresses: addresses.filter(Boolean),
-        emails: emails.filter(Boolean),
-        website,
+/* =========================================
+   SUPPLIER CASCADE (SAME AS CATEGORY TYPE)
+========================================= */
 
-        contacts: contactNames
-          .map((name, index) => ({
-            name,
-            phone: contactNumbers[index] || "",
-          }))
-          .filter((c) => c.name || c.phone),
+const q = query(
+  collection(db, "products"),
+  where("supplier.supplierId", "==", supplier.id),
+);
 
-        forteProducts: forteProducts.filter(Boolean),
-        products: products.filter(Boolean),
-        certificates: certificates.filter(Boolean),
+const snap = await getDocs(q);
 
-        referenceID: user?.ReferenceID || supplier.referenceID || null,
-        updatedAt: serverTimestamp(),
-      });
+await Promise.all(
+  snap.docs.map((p) => {
+    const data = p.data();
+
+    if (!data.supplier) return Promise.resolve();
+
+    return updateDoc(p.ref, {
+      supplier: {
+        ...data.supplier,
+        company: company.trim(), // 🔥 UPDATE ALL
+      },
+    });
+  }),
+);
 
 
       toast.success("Supplier saved successfully", {
