@@ -464,7 +464,7 @@ export default function AddProductPage() {
             <CardContent className="space-y-4">
               {/* ===== CLASSIFICATION ===== */}
               <div className="flex items-center justify-between gap-2">
-                <Label>Add / Select Classification</Label>
+                <Label>Select Classification</Label>
 
                 <Input
                   value={classificationSearch}
@@ -542,7 +542,7 @@ export default function AddProductPage() {
               <Separator />
 
               <div className="flex items-center justify-between gap-2">
-                <Label>Add / Select Category</Label>
+                <Label>Select Category</Label>
 
                 <Input
                   value={categoryTypeSearch}
