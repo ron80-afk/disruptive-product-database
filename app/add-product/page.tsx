@@ -36,7 +36,6 @@ import AddProductSelectProductType from "@/components/add-product-edit-select-pr
 import AddProductDeleteClassification from "@/components/add-product-delete-select-classification-type";
 import AddProductDeleteProductType from "@/components/add-product-delete-select-product-type";
 
-
 /* ---------------- Types ---------------- */
 type UserData = {
   Firstname: string;
@@ -454,7 +453,7 @@ export default function AddProductPage() {
               </label>
             </CardContent>
           </Card>
-
+          {/* ---------------- CLASSIFICATION SECTION ---------------- */}
           <Card>
             <CardHeader>
               <CardTitle className="text-center text-sm">
@@ -463,7 +462,6 @@ export default function AddProductPage() {
             </CardHeader>
 
             <CardContent className="space-y-4">
-              {/* ===== CLASSIFICATION ===== */}
               <div className="flex items-center justify-between gap-2">
                 <Label>Add / Select Classification</Label>
 
@@ -533,7 +531,6 @@ export default function AddProductPage() {
                             item={item}
                             referenceID={user?.ReferenceID || ""}
                           />
-
                         </div>
                       </div>
                     ))
@@ -571,7 +568,6 @@ export default function AddProductPage() {
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-
 
               <div className="space-y-2 mt-3 max-h-[220px] overflow-y-auto pr-1">
                 {categoryTypes.filter((item) =>
@@ -620,11 +616,36 @@ export default function AddProductPage() {
                             item={item}
                             referenceID={user?.ReferenceID || ""}
                           />
-
                         </div>
                       </div>
                     ))
                 )}
+              </div>
+
+              {/* ===== ADD / SELECT PRODUCT (UI ONLY) ===== */}
+              <Separator />
+
+              <div className="flex items-center justify-between gap-2">
+                <Label>Add / Select Product</Label>
+
+                <Input
+                  placeholder="Search product..."
+                  className="h-8 w-[160px]"
+                  disabled
+                />
+              </div>
+
+              {/* <div className="flex gap-2">
+                <Input placeholder="Add product..." disabled />
+                <Button size="icon" variant="outline" disabled>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div> */}
+
+              <div className="space-y-2 mt-3 max-h-[220px] overflow-y-auto pr-1">
+                <div className="text-center text-sm text-muted-foreground py-6">
+                  No Records Found.
+                </div>
               </div>
             </CardContent>
           </Card>
