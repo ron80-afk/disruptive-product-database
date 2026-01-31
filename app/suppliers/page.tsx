@@ -156,7 +156,6 @@ export default function Suppliers() {
         })
         .filter((s: any) => s.isActive !== false);
 
-
       setSuppliers(list as Supplier[]);
     });
 
@@ -189,9 +188,7 @@ export default function Suppliers() {
 
       const searchMatch =
         s.company.toLowerCase().includes(keyword) ||
-        s.internalCode?.some((code) =>
-          code.toLowerCase().includes(keyword),
-        ) ||
+        s.internalCode?.some((code) => code.toLowerCase().includes(keyword)) ||
         s.addresses?.some((a) => a.toLowerCase().includes(keyword)) ||
         s.emails?.some((e) => e.toLowerCase().includes(keyword)) ||
         s.contacts?.some(
@@ -206,8 +203,7 @@ export default function Suppliers() {
         (!filters.internalCode ||
           s.internalCode?.some((code) =>
             code.toLowerCase().includes(filters.internalCode.toLowerCase()),
-          )
-        ) &&
+          )) &&
         (!filters.email ||
           s.emails?.some((e) =>
             e.toLowerCase().includes(filters.email.toLowerCase()),
@@ -410,7 +406,7 @@ export default function Suppliers() {
 
                   {/* COMPANY */}
                   <TableCell className="whitespace-normal break-words">
-                    {s.company}
+                    <span className="text-base font-semibold">{s.company}</span>
                   </TableCell>
 
                   {/* INTERNAL CODE */}
@@ -419,8 +415,8 @@ export default function Suppliers() {
                       ? s.internalCode.length === 1
                         ? s.internalCode[0]
                         : s.internalCode.map((item, i) => (
-                          <div key={i}>{`${i + 1}. ${item}`}</div>
-                        ))
+                            <div key={i}>{`${i + 1}. ${item}`}</div>
+                          ))
                       : "-"}
                   </TableCell>
 
@@ -430,8 +426,8 @@ export default function Suppliers() {
                       ? s.addresses.length === 1
                         ? s.addresses[0]
                         : s.addresses.map((item, i) => (
-                          <div key={i}>{`${i + 1}. ${item}`}</div>
-                        ))
+                            <div key={i}>{`${i + 1}. ${item}`}</div>
+                          ))
                       : "-"}
                   </TableCell>
 
@@ -441,8 +437,8 @@ export default function Suppliers() {
                       ? s.emails.length === 1
                         ? s.emails[0]
                         : s.emails.map((item, i) => (
-                          <div key={i}>{`${i + 1}. ${item}`}</div>
-                        ))
+                            <div key={i}>{`${i + 1}. ${item}`}</div>
+                          ))
                       : "-"}
                   </TableCell>
 
@@ -450,20 +446,19 @@ export default function Suppliers() {
                   <TableCell className="whitespace-normal break-words">
                     {s.website?.length
                       ? s.website.map((site, i) => (
-                        <div key={i}>
-                          <a
-                            href={formatWebsite(site)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 underline hover:text-blue-800 break-all"
-                          >
-                            {site}
-                          </a>
-                        </div>
-                      ))
+                          <div key={i}>
+                            <a
+                              href={formatWebsite(site)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 underline hover:text-blue-800 break-all"
+                            >
+                              {site}
+                            </a>
+                          </div>
+                        ))
                       : "-"}
                   </TableCell>
-
 
                   {/* CONTACT NAMES */}
                   <TableCell className="whitespace-normal break-words">
@@ -471,8 +466,8 @@ export default function Suppliers() {
                       ? s.contacts.length === 1
                         ? s.contacts[0].name
                         : s.contacts.map((c, i) => (
-                          <div key={i}>{`${i + 1}. ${c.name}`}</div>
-                        ))
+                            <div key={i}>{`${i + 1}. ${c.name}`}</div>
+                          ))
                       : "-"}
                   </TableCell>
 
@@ -482,8 +477,8 @@ export default function Suppliers() {
                       ? s.contacts.length === 1
                         ? s.contacts[0].phone
                         : s.contacts.map((c, i) => (
-                          <div key={i}>{`${i + 1}. ${c.phone}`}</div>
-                        ))
+                            <div key={i}>{`${i + 1}. ${c.phone}`}</div>
+                          ))
                       : "-"}
                   </TableCell>
 
@@ -493,8 +488,8 @@ export default function Suppliers() {
                       ? s.forteProducts.length === 1
                         ? s.forteProducts[0]
                         : s.forteProducts.map((item, i) => (
-                          <div key={i}>{`${i + 1}. ${item}`}</div>
-                        ))
+                            <div key={i}>{`${i + 1}. ${item}`}</div>
+                          ))
                       : "-"}
                   </TableCell>
 
@@ -504,8 +499,8 @@ export default function Suppliers() {
                       ? s.products.length === 1
                         ? s.products[0]
                         : s.products.map((item, i) => (
-                          <div key={i}>{`${i + 1}. ${item}`}</div>
-                        ))
+                            <div key={i}>{`${i + 1}. ${item}`}</div>
+                          ))
                       : "-"}
                   </TableCell>
 
@@ -515,8 +510,8 @@ export default function Suppliers() {
                       ? s.certificates.length === 1
                         ? s.certificates[0]
                         : s.certificates.map((item, i) => (
-                          <div key={i}>{`${i + 1}. ${item}`}</div>
-                        ))
+                            <div key={i}>{`${i + 1}. ${item}`}</div>
+                          ))
                       : "-"}
                   </TableCell>
                 </TableRow>
@@ -540,7 +535,7 @@ export default function Suppliers() {
             >
               {/* HEADER */}
               <div className="flex items-start justify-between">
-                <h3 className="text-base font-semibold underline">
+                <h3 className="text-lg font-bold underline leading-tight">
                   {s.company}
                 </h3>
 
@@ -577,8 +572,8 @@ export default function Suppliers() {
                   <div className="ml-2 text-muted-foreground">
                     {s.internalCode?.length
                       ? s.internalCode.map((c, i) => (
-                        <div key={i}>{`${i + 1}. ${c}`}</div>
-                      ))
+                          <div key={i}>{`${i + 1}. ${c}`}</div>
+                        ))
                       : "-"}
                   </div>
                 </div>
@@ -640,7 +635,6 @@ export default function Suppliers() {
                     )}
                   </div>
                 </div>
-
 
                 {/* CONTACTS */}
                 <div>
