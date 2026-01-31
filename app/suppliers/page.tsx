@@ -187,15 +187,27 @@ export default function Suppliers() {
       const keyword = search.toLowerCase();
 
       const searchMatch =
-        s.company.toLowerCase().includes(keyword) ||
-        s.internalCode?.some((code) => code.toLowerCase().includes(keyword)) ||
-        s.addresses?.some((a) => a.toLowerCase().includes(keyword)) ||
-        s.emails?.some((e) => e.toLowerCase().includes(keyword)) ||
+        s.company?.toLowerCase().includes(keyword) ||
+        // Internal Codes
+        s.internalCode?.some((v) => v.toLowerCase().includes(keyword)) ||
+        // Addresses
+        s.addresses?.some((v) => v.toLowerCase().includes(keyword)) ||
+        // Emails
+        s.emails?.some((v) => v.toLowerCase().includes(keyword)) ||
+        // Websites ✅
+        s.website?.some((v) => v.toLowerCase().includes(keyword)) ||
+        // Contacts (name + phone)
         s.contacts?.some(
           (c) =>
-            c.name.toLowerCase().includes(keyword) ||
-            c.phone.toLowerCase().includes(keyword),
-        );
+            c.name?.toLowerCase().includes(keyword) ||
+            c.phone?.toLowerCase().includes(keyword),
+        ) ||
+        // Forte Products
+        s.forteProducts?.some((v) => v.toLowerCase().includes(keyword)) ||
+        // Products
+        s.products?.some((v) => v.toLowerCase().includes(keyword)) ||
+        // Certificates
+        s.certificates?.some((v) => v.toLowerCase().includes(keyword));
 
       const filterMatch =
         (!filters.company ||
