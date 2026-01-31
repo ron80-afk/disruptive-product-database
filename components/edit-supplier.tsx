@@ -70,6 +70,9 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
   /* ---------------- Multi Fields ---------------- */
   const [contactNames, setContactNames] = useState<string[]>([""]);
   const [contactNumbers, setContactNumbers] = useState<string[]>([""]);
+  const [contactTypes, setContactTypes] = useState<("phone" | "other")[]>([
+    "phone",
+  ]);
 
   const [forteProducts, setForteProducts] = useState<string[]>([""]);
   const [products, setProducts] = useState<string[]>([""]);
@@ -158,17 +161,22 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
       supplier.emails && supplier.emails.length > 0 ? supplier.emails : [""],
     );
     setWebsite(
-      supplier.website && supplier.website.length > 0
-        ? supplier.website
-        : [""],
+      supplier.website && supplier.website.length > 0 ? supplier.website : [""],
     );
 
     // ✅ CONTACTS – always at least 1 row
     if (supplier.contacts && supplier.contacts.length > 0) {
       setContactNames(supplier.contacts.map((c: any) => c.name || ""));
+
       setContactNumbers(
         supplier.contacts.map((c: any) =>
           c.phone ? c.phone.replace(/\s+/g, "") : "",
+        ),
+      );
+
+      setContactTypes(
+        supplier.contacts.map((c: any) =>
+          c.phone && c.phone.startsWith("+") ? "phone" : "other",
         ),
       );
     } else {
@@ -199,6 +207,27 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
   }, [supplier]);
 
   /* ---------------- Helpers ---------------- */
+
+  const updateContactType = (index: number, value: "phone" | "other") => {
+    setContactTypes((prev) =>
+      prev.map((item, i) => (i === index ? value : item)),
+    );
+  };
+
+  const addContactTypeAfter = (index: number) => {
+    setContactTypes((prev) => {
+      const copy = [...prev];
+      copy.splice(index + 1, 0, "phone");
+      return copy;
+    });
+  };
+
+  const removeContactType = (index: number) => {
+    setContactTypes((prev) =>
+      prev.length > 1 ? prev.filter((_, i) => i !== index) : prev,
+    );
+  };
+
   const updateList = (
     setter: React.Dispatch<React.SetStateAction<string[]>>,
     index: number,
@@ -387,7 +416,6 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
             ))}
           </div>
 
-
           {/* Addresses */}
           <div className="space-y-3">
             <Label>Addresses</Label>
@@ -516,16 +544,13 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
             ))}
           </div>
 
-
           {/* Contacts */}
           <div className="space-y-3">
             <Label>Contacts</Label>
 
             {contactNames.map((_, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center"
-              >
+              <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                {/* Name */}
                 <Input
                   placeholder="Contact Name"
                   value={contactNames[index]}
@@ -534,19 +559,23 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
                   }
                 />
 
-                <PhoneInput
-                  international
-                  defaultCountry="PH"
-                  countryCallingCodeEditable={false}
-                  value={contactNumbers[index]}
-                  onChange={(value) =>
-                    updateList(setContactNumbers, index, value || "")
+                {/* Type */}
+                <select
+                  className="h-10 rounded-md border px-2 text-sm"
+                  value={contactTypes[index]}
+                  onChange={(e) =>
+                    updateContactType(
+                      index,
+                      e.target.value as "phone" | "other",
+                    )
                   }
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  placeholder="+63 9XX XXX XXXX"
-                />
+                >
+                  <option value="phone">Phone</option>
+                  <option value="other">Others</option>
+                </select>
 
-                <div className="flex gap-1">
+                {/* Actions */}
+                <div className="flex gap-1 justify-end">
                   <Button
                     type="button"
                     size="icon"
@@ -554,6 +583,7 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
                     onClick={() => {
                       addRowAfter(setContactNames, index);
                       addRowAfter(setContactNumbers, index);
+                      addContactTypeAfter(index);
                     }}
                   >
                     <Plus className="h-4 w-4" />
@@ -567,10 +597,36 @@ function EditSupplier({ open, onOpenChange, supplier }: EditSupplierProps) {
                     onClick={() => {
                       removeRow(setContactNames, index);
                       removeRow(setContactNumbers, index);
+                      removeContactType(index);
                     }}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
+                </div>
+
+                {/* Value — FULL WIDTH */}
+                <div className="col-span-3">
+                  {contactTypes[index] === "phone" ? (
+                    <PhoneInput
+                      international
+                      defaultCountry="PH"
+                      countryCallingCodeEditable={false}
+                      value={contactNumbers[index]}
+                      onChange={(value) =>
+                        updateList(setContactNumbers, index, value || "")
+                      }
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      placeholder="+63 9XX XXX XXXX"
+                    />
+                  ) : (
+                    <Input
+                      placeholder="WeChat / TikTok / etc"
+                      value={contactNumbers[index]}
+                      onChange={(e) =>
+                        updateList(setContactNumbers, index, e.target.value)
+                      }
+                    />
+                  )}
                 </div>
               </div>
             ))}
